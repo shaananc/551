@@ -6,8 +6,3 @@ using namespace std;
 Connection::Connection(){
     ;
 }
-
-int connect() {
-    Connection c;
-
-}

@@ -35,7 +35,7 @@ private:
     bool seenPacket();
 
     std::vector<u_short> checksums;
-    std::vector<u_int32_t> sequenceNo;
+    std::vector<u_int32_t> awaitingACK;
     void setState(u_short state);
 
 protected:

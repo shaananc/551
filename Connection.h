@@ -9,7 +9,7 @@
 #define	CONNECTION_H
 
 
-
+#include <iostream>
 #include <sys/types.h>
 #include <vector>
 #include "pktstruct.h"
@@ -32,8 +32,8 @@ private:
 
     bool seenPacket();
 
-    std::vector<int> checksums;
-
+    std::vector<u_short> checksums;
+    std::vector<u_int32_t> sequenceNo;
     void setState(u_short state);
 
 protected:
@@ -61,7 +61,7 @@ public:
     // calls seenPacket();
     // updates variables (sent, recvd)
     // throw exception on invalid packet
-    bool processPacket(struct sniff_tcp *packet, u_char *payload);
+    bool processPacket(struct sniff_tcp *packet, struct sniff_ip *packet2, u_char *payload);
 
 
 

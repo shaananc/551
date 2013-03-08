@@ -219,25 +219,23 @@ u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[],unsigned 
     u_short bak = tcp->th_sum;
     tcp->th_sum = 0;
 	
-	/*TCP header and payload */
+    /*TCP header and payload */
     memcpy(buf, tcp, len_tcp);
     memcpy(buf + len_tcp, payload, size);
     u_short *ptr = (ushort *) buf;
 	
-    
     while(s > 1)
     {
       sum += *ptr++;
       s -= 2;
     }
 	
-    
     if(s>0)
     {
       sum += *((unsigned char *)ptr);
     }
-	
-	/* pseudoheader*/
+ 
+    /* pseudoheader*/
     sum += src_addr[0];
     sum += src_addr[1];
     sum += dest_addr[0];
@@ -248,8 +246,7 @@ u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[],unsigned 
     while (sum >> 16){
       sum = (sum & 0xFFFF) + (sum >> 16);
     }
-	
-	
+    
     tcp->th_sum = bak;
 	
     return (u_short*) ~sum;

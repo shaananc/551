@@ -227,14 +227,14 @@ u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[],unsigned 
     
     while(s > 1)
     {
-        sum += *ptr++;
-        s -= 2;
+      sum += *ptr++;
+      s -= 2;
     }
 	
     
     if(s>0)
     {
-		sum += *((unsigned char *)ptr);
+      sum += *((unsigned char *)ptr);
     }
 	
 	/* pseudoheader*/
@@ -245,14 +245,14 @@ u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[],unsigned 
     sum += htons(prot_tcp);
     sum += htons(len_tcp + size);
 	
-	while (sum >> 16){
-		sum = (sum & 0xFFFF) + (sum >> 16);
-	}
+    while (sum >> 16){
+      sum = (sum & 0xFFFF) + (sum >> 16);
+    }
 	
 	
-	tcp->th_sum = bak;
+    tcp->th_sum = bak;
 	
-	return (u_short*) ~sum;
+    return (u_short*) ~sum;
 }
 
 /*

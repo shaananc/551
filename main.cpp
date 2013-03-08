@@ -57,11 +57,12 @@ map<IpKey, Connection> connections;
 
 
 void addrToString(u_char *ptr, char *buf);
-u_short checksum(struct sniff_ip *ip, struct sniff_tcp *tcp, u_char* payload, int size);
-u_short calcsum(u_short *ptr, int size);
+//u_short checksum(struct sniff_ip *ip, struct sniff_tcp *tcp, u_char* payload, int size);
+//u_short calcsum(u_short *ptr, int size);
 void print_packets(char *type_s);
 void print_total_count(int num_total_packets, int num_tpackets, int num_upackets, int num_opackets);
 void process_tcp(struct sniff_ip *ip, struct sniff_tcp *tcp, u_char *payload);
+u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[],unsigned short dest_addr[], struct sniff_tcp *tcp, u_char *payload, int size);
 
 int main(int argc, char** argv) {
 
@@ -145,15 +146,9 @@ int main(int argc, char** argv) {
                 payload = (const char *) (packet + SIZE_ETHERNET + size_ip + size_tcp); /* address of payload*/
 
                 checksum_value = ntohs(tcp->th_sum); /* checksum value in the packet*/
+                int comp_value = ((unsigned short) tcp_checksum((unsigned short) (size_tcp), (unsigned short *) &ip->ip_src, (unsigned short *) &ip->ip_dst, tcp, payload, d_size));
 
-                if (ntohs(tcp->th_sum) == ntohs(
-                        checksum(
-                        (struct sniff_ip *) ip,
-                        (struct sniff_tcp *) tcp,
-                        (u_char *) payload,
-                        d_size)
-                        )
-                        ) { /* check validity of checksum*/
+                if (ntohs(tcp->th_sum) == ntohs(comp_value)) { /* check validity of checksum*/
 
                     valid = 'Y';
 
@@ -211,10 +206,60 @@ void addrToString(u_char *addr, char *buf) {
 }
 
 /* computes the checksum*/
+u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[],unsigned short dest_addr[], struct sniff_tcp* tcp, u_char *payload, int size)
+{
+    char buf[65536];
+    unsigned char prot_tcp=6;
+    unsigned long sum;
+    int s;
+    
+    sum = 0;
+    s = (len_tcp + size); /*tcp header length + payload length */
+	
+    u_short bak = tcp->th_sum;
+    tcp->th_sum = 0;
+	
+	/*TCP header and payload */
+    memcpy(buf, tcp, len_tcp);
+    memcpy(buf + len_tcp, payload, size);
+    u_short *ptr = (ushort *) buf;
+	
+    
+    while(s > 1)
+    {
+        sum += *ptr++;
+        s -= 2;
+    }
+	
+    
+    if(s>0)
+    {
+		sum += *((unsigned char *)ptr);
+    }
+	
+	/* pseudoheader*/
+    sum += src_addr[0];
+    sum += src_addr[1];
+    sum += dest_addr[0];
+    sum += dest_addr[1];
+    sum += htons(prot_tcp);
+    sum += htons(len_tcp + size);
+	
+	while (sum >> 16){
+		sum = (sum & 0xFFFF) + (sum >> 16);
+	}
+	
+	
+	tcp->th_sum = bak;
+	
+	return (u_short*) ~sum;
+}
+
+/*
 u_short checksum(struct sniff_ip *ip, struct sniff_tcp *tcp, u_char *payload, int size) {
     char buf[65536];
 
-    /* Construct pseduo header*/
+    
     struct pseudo_tcphdr psd_header;
     psd_header.saddr = ip->ip_src.s_addr;
     psd_header.daddr = ip->ip_dst.s_addr;
@@ -225,7 +270,7 @@ u_short checksum(struct sniff_ip *ip, struct sniff_tcp *tcp, u_char *payload, in
     u_short bak = tcp->th_sum;
     tcp->th_sum = 0;
 
-    /* Copy bytes into buffer*/
+    
     memcpy(buf, &psd_header, sizeof (struct pseudo_tcphdr));
     memcpy(buf + sizeof (struct pseudo_tcphdr), tcp, sizeof (struct sniff_tcp));
     memcpy(buf + sizeof (struct pseudo_tcphdr) + sizeof (struct sniff_tcp), payload, size);
@@ -233,7 +278,7 @@ u_short checksum(struct sniff_ip *ip, struct sniff_tcp *tcp, u_char *payload, in
     tcp->th_sum = bak;
 
     int total_s = sizeof (struct pseudo_tcphdr) + sizeof (struct sniff_tcp) +size;
-    /* Compute checksum */
+    
 
 
     return calcsum((ushort *) buf, total_s);
@@ -242,7 +287,7 @@ u_short checksum(struct sniff_ip *ip, struct sniff_tcp *tcp, u_char *payload, in
 
 }
 
-/* checksum computation*/
+
 u_short calcsum(u_short *ptr, int size) {
 
     int s = size;
@@ -265,6 +310,7 @@ u_short calcsum(u_short *ptr, int size) {
     return (u_short) ~sum;
 
 }
+*/
 
 /* print packet details*/
 void print_packets(char *type_s) {

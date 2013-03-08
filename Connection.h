@@ -13,6 +13,8 @@
 #include <sys/types.h>
 #include <vector>
 #include "pktstruct.h"
+#include "IpKey.h"
+
 
 class Connection {
 public:
@@ -61,12 +63,13 @@ public:
     // calls seenPacket();
     // updates variables (sent, recvd)
     // throw exception on invalid packet
-    bool processPacket(struct sniff_tcp *packet, struct sniff_ip *packet2, u_char *payload);
+    bool processPacket(struct sniff_tcp *tcp, struct sniff_ip *ip, u_char *payload);
 
 
 
 };
 
+bool operator<(const Connection& lhs, const Connection& rhs);
 
 
 #endif	/* CONNECTION_H */

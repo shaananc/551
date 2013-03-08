@@ -1,9 +1,16 @@
-all: packetparse
+CC=g++
+CFLAGS=-c -Wall -fpermissive
+LDFLAGS= -lpcap
+SOURCES=main.cpp IpKey.cpp Connection.cpp
+OBJECTS=$(SOURCES:.cpp=.o)
+EXECUTABLE=packetparse
 
-packetparse: connection.o
-	g++ -g main.cc ./build/Connection.o -lpcap -o packetparse -fpermissive
+all: $(SOURCES) $(EXECUTABLE)
 	
-	
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) -lpcap -o $@
 
-connection.o:
-	g++ -c Connection.cc -o ./build/Connection.o
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+

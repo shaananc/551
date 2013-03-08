@@ -10,6 +10,32 @@ Connection::Connection() {
     ;
 }
 
+void Connection::initializeConnection(struct sniff_tcp *tcp, struct sniff_ip *ip) {
+    // First step - check if SYN or SYN-ACK
+    // All these lines should check sequence numbers on the ACK
+
+
+    if ((tcp->th_flags & TH_SYN) && !(tcp->th_flags & TH_ACK)) {
+        cout << "SYN" << endl;
+        state = SYN_SENT;
+        initiator = ip->ip_src;
+        receiver = ip->ip_dst;
+        init_port = tcp->th_sport;
+        recv_port = tcp->th_dport;
+
+
+    } else if ((tcp->th_flags & TH_SYN) && (tcp->th_flags & TH_ACK)) {
+        cout << "SYN/ACK" << endl;
+        state = SYN_REC;
+        //cout << "The current state is " << state << endl;
+        initiator = ip->ip_dst;
+        receiver = ip->ip_src;
+        init_port = tcp->th_dport;
+        recv_port = tcp->th_sport;
+
+    }
+}
+
 bool Connection::processPacket(struct sniff_tcp *tcp, struct sniff_ip *ip, u_char *payload) {
     /*
     The logic goes like this 
@@ -25,31 +51,12 @@ bool Connection::processPacket(struct sniff_tcp *tcp, struct sniff_ip *ip, u_cha
     u_int size_tcp; /*Size of tcp header*/
 
 
-    
-    
+
+
     // First step - check if SYN or SYN-ACK
     // All these lines should check sequence numbers on the ACK
-    
-    
-    if ((tcp->th_flags & TH_SYN) && !(tcp->th_flags & TH_ACK)) {
-        cout << "SYN" << endl;
-        state = SYN_SENT;
-        //cout << "The current state is " << state << endl;
-        src = ip->ip_src;
-        dest = ip->ip_dst;
-        src_port = tcp->th_sport;
-        dst_port = tcp->th_dport;
 
-    } else if ((tcp->th_flags & TH_SYN) && (tcp->th_flags & TH_ACK)) {
-        cout << "SYN/ACK" << endl;
-        state = SYN_REC;
-        //cout << "The current state is " << state << endl;
-        dest = ip->ip_src;
-        src = ip->ip_dst;
-        dst_port = tcp->th_sport;
-        src_port = tcp->th_dport;
-
-    } else if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->th_flags & TH_ACK)) {
+    if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->th_flags & TH_ACK)) {
         state = EST;
         cout << "Established." << endl;
         //cout << "The current state is " << state << endl;
@@ -65,28 +72,28 @@ bool Connection::processPacket(struct sniff_tcp *tcp, struct sniff_ip *ip, u_cha
         size_tcp = TH_OFF(tcp)*4;
         int d_size = ntohs(ip->ip_len) - size_ip - size_tcp;
         //payload = (u_char *) (tcp + SIZE_ETHERNET + size_ip + size_tcp);
-        
-        cout << payload << endl;
-        
-        
 
-    } else{
+        cout << payload << endl;
+
+
+
+    } else {
         cout << "uhoh" << endl;
     }
-    
-    
 
-return false;
-//TODO implement
+
+
+    return false;
+    //TODO implement
 
 
 }
-
-
-
 
 bool Connection::seenPacket() {
     return false;
     // TODO implement
 }
 
+friend ostream& operator<<(ostream &out, Connection &c){
+    
+}

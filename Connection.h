@@ -15,14 +15,16 @@
 #include "pktstruct.h"
 #include "IpKey.h"
 
-
 class Connection {
 public:
     Connection();
 
-    Connection(struct in_addr src, struct in_addr dest, u_short src_port, u_short dst_port, int hashCode){;}
+    Connection(struct in_addr src, struct in_addr dest, u_short src_port, u_short dst_port, int hashCode) {
+        ;
+    }
 
-    virtual ~Connection(){};
+    virtual ~Connection() {
+    };
 
     enum StateType {
         SYN_REC = 1,
@@ -40,10 +42,11 @@ private:
 
 protected:
 
-    struct in_addr src;
-    struct in_addr dest;
-    u_short src_port;
-    u_short dst_port;
+    // the once who sent the syn
+    struct in_addr initiator;
+    struct in_addr receiver;
+    u_short init_port;
+    u_short recv_port;
 
     u_short state;
 
@@ -64,7 +67,7 @@ public:
     // updates variables (sent, recvd)
     // throw exception on invalid packet
     bool processPacket(struct sniff_tcp *tcp, struct sniff_ip *ip, u_char *payload);
-
+    void initializeConnection(struct sniff_tcp *tcp, struct sniff_ip *ip);
 
 
 };

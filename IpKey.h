@@ -9,6 +9,7 @@
 #define	MAIN_H
 
 #include "pktstruct.h"
+#include "IPStack.h"
 
 class IpKey {
 public:
@@ -29,20 +30,20 @@ public:
 
 public:
 
-    IpKey(struct sniff_ip *ip, struct sniff_tcp *tcp) {
+    IpKey(struct sniff_ip *ip, TCP *tcp) {
         if (ip->ip_src.s_addr > ip->ip_dst.s_addr) {
             addrA = ip->ip_src.s_addr;
-            portA = tcp->th_sport;
+            portA = tcp->source_port;
 
             addrB = ip->ip_dst.s_addr;
-            portB = tcp->th_dport;
+            portB = tcp->dest_port;
 
         } else {
             addrB = ip->ip_src.s_addr;
-            portB = tcp->th_sport;
+            portB = tcp->source_port;
 
             addrA = ip->ip_dst.s_addr;
-            portA = tcp->th_dport;
+            portA = tcp->dest_port;
             
         }
     }

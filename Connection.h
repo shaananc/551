@@ -29,6 +29,7 @@ public:
     };
 
     enum StateType {
+        INIT = 0,
         SYN_REC = 1,
         SYN_SENT = 2,
         EST = 3,
@@ -68,8 +69,8 @@ public:
     // calls seenPacket();
     // updates variables (sent, recvd)
     // throw exception on invalid packet
-    bool processPacket(struct sniff_tcp *tcp, struct sniff_ip *ip, u_char *payload);
-    void initializeConnection(struct sniff_tcp *tcp, struct sniff_ip *ip);
+    bool processPacket(Packet *packet);
+    void initializeConnection(Packet *packet);
     std::string getState();
 
 //    friend std::ostream& operator<<(std::ostream &out, Connection & c) {

@@ -13,6 +13,8 @@
 
 #define PROT_OTHER 0
 
+void addrToString(u_char *ptr, char *buf);
+u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[], unsigned short dest_addr[], struct sniff_tcp* tcp, u_char *payload, int size);
 
 // Higher Layers
 
@@ -39,15 +41,20 @@ public:
 
     bool valid_checksum;
     int checksum;
+    u_char flags;
 
 };
 
 class UDP : public TransportProtocol {
 };
 
-
 class Packet {
 public:
+
+    Packet() {
+        ;
+    }
+
     //has layer 1
     sniff_ip *ip;
     sniff_ethernet *ethernet;

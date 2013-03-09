@@ -33,6 +33,11 @@ public:
         SYN_REC = 1,
         SYN_SENT = 2,
         EST = 3,
+        FIN_WAIT1 = 4,
+        FIN_WAIT2 = 5,
+        CLOSING = 6,
+        CLOSE_WAIT = 7,
+        
     };
 
 private:

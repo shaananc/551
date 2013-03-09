@@ -60,13 +60,6 @@ void Packet::PrintPacket() {
 
 /* converts mac addresses to string format*/
 void addrToString(u_char *addr, char *buf) {
-    int i = ETHER_ADDR_LEN;
-    char *sptr = buf;
-    char *ptr = (char *) addr;
-    do {
-        sprintf(sptr, "%.2x", *ptr++);
-        sprintf(sptr + 2, ":");
-        sptr += 3;
-    } while (--i > 0);
-    buf[MAC_STRING_SIZE - 2] = '\0';
+    sprintf(buf,"%.2X:%.2X:%.2X:%.2X:%.2X:%.2X", addr[0] , addr[1] , addr[2] , addr[3] , addr[4] , addr[5]);
+
 }

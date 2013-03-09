@@ -70,7 +70,7 @@ bool Connection::processPacket(struct sniff_tcp *tcp, struct sniff_ip *ip, u_cha
         //cout << "Established!" << endl;
         size_ip = IP_HL(ip)*4;
         size_tcp = TH_OFF(tcp)*4;
-        int d_size = ntohs(ip->ip_len) - size_ip - size_tcp;
+        //int d_size = ntohs(ip->ip_len) - size_ip - size_tcp;
         //payload = (u_char *) (tcp + SIZE_ETHERNET + size_ip + size_tcp);
 
         cout << payload << endl;
@@ -94,6 +94,12 @@ bool Connection::seenPacket() {
     // TODO implement
 }
 
-friend ostream& operator<<(ostream &out, Connection &c){
-    
+string Connection::getState(){
+    switch(state){
+        case SYN_REC: return "SYN RECEIVED";
+        case SYN_SENT: return "SYN SENT";
+        case EST: return "ESTABLISHED";
+        
+    }
+    return NULL;
 }

@@ -12,6 +12,8 @@
 #include <iostream>
 #include <sys/types.h>
 #include <vector>
+#include <string>
+
 #include "pktstruct.h"
 #include "IpKey.h"
 
@@ -68,11 +70,20 @@ public:
     // throw exception on invalid packet
     bool processPacket(struct sniff_tcp *tcp, struct sniff_ip *ip, u_char *payload);
     void initializeConnection(struct sniff_tcp *tcp, struct sniff_ip *ip);
+    std::string getState();
 
+//    friend std::ostream& operator<<(std::ostream &out, Connection & c) {
+//        char src_s[INET_ADDRSTRLEN];
+//        char dst_s[INET_ADDRSTRLEN];
+//        inet_ntop(AF_INET, c.initiator, src_s, INET_ADDRSTRLEN);
+//        inet_ntop(AF_INET, c.receiver, dst_s, INET_ADDRSTRLEN);
+//
+//        //std::cout << "Initiator: " << src_s << " on port" << c. << std::endl;
+//        //std::cout << "Receiver: " << dst_s << " on port" << c. << std::endl;
+//    }
 
 };
 
-bool operator<(const Connection& lhs, const Connection& rhs);
 
 
 #endif	/* CONNECTION_H */

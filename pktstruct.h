@@ -6,6 +6,8 @@
  * Source from provided material and #include <netinet/tcp.h>
  */
 
+
+
 #ifndef PKTSTRUCT_H
 #define	PKTSTRUCT_H
 
@@ -16,6 +18,13 @@ extern "C" {
 #include <pcap.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+
+
+    // Size of Ethernet Frame Header
+#define SIZE_ETHERNET 14
+#define MAC_STRING_SIZE 19
+
+
     /* Ethernet addresses are 6 bytes */
 #define ETHER_ADDR_LEN	6
 
@@ -83,7 +92,7 @@ extern "C" {
         char prot;
         u_short tcpl;
     };
-   
+
     struct sniff_udp {
         u_short udp_sport; /* source port */
         u_short udp_dport; /* destination port */

@@ -33,7 +33,7 @@ void Connection::initializeConnection(Packet *packet) {
     } else if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->flags & TH_ACK)) {
         state = EST;
         cout << "Established." << endl;
-      
+
     } else {
         cout << "ERROR" << endl;
     }
@@ -64,16 +64,8 @@ bool Connection::processPacket(Packet *packet) {
         initializeConnection(packet);
     } else if (state == EST) {
         //all the manipulations for payload and bytes recvd and sent
-        //ip = (struct sniff_ip*) (tcp + SIZE_ETHERNET);
-        //tcp = (struct sniff_tcp*) (tcp + SIZE_ETHERNET + size_ip); /* address of tcp header located after ip header*/
-        //cout << "Established!" << endl;
-
-        //int d_size = ntohs(ip->ip_len) - size_ip - size_tcp;
-        //payload = (u_char *) (tcp + SIZE_ETHERNET + size_ip + size_tcp);
         cout << "HERE!" << endl;
         cout << tcp->payload << endl;
-
-
 
     } else {
         cout << "uhoh" << endl;

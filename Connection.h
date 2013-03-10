@@ -22,9 +22,11 @@ class Connection {
 public:
     Connection();
 
-    Connection(struct in_addr src, struct in_addr dest, u_short src_port, u_short dst_port, int hashCode) {
+    Connection(struct in_addr src, struct in_addr dest, u_short src_port, u_short dst_port, int hashCode, int id_num) {
         ;
     }
+    
+    
 
     virtual ~Connection() {
     };
@@ -73,6 +75,8 @@ protected:
     
     int init_duplicates;
     int recv_duplicates;
+    
+    u_int id_num;
 
 
 public:
@@ -84,16 +88,8 @@ public:
     bool processPacket(Packet *packet);
     void initializeConnection(Packet *packet);
     std::string getState();
+    void setId(int id_num);
 
-//    friend std::ostream& operator<<(std::ostream &out, Connection & c) {
-//        char src_s[INET_ADDRSTRLEN];
-//        char dst_s[INET_ADDRSTRLEN];
-//        inet_ntop(AF_INET, c.initiator, src_s, INET_ADDRSTRLEN);
-//        inet_ntop(AF_INET, c.receiver, dst_s, INET_ADDRSTRLEN);
-//
-//        //std::cout << "Initiator: " << src_s << " on port" << c. << std::endl;
-//        //std::cout << "Receiver: " << dst_s << " on port" << c. << std::endl;
-//    }
 
 };
 

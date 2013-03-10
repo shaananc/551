@@ -29,6 +29,8 @@ int num_tpackets;
 int num_upackets;
 int num_opackets;
 
+int num_connections;
+
 char *FLAG;
 u_short PRINT_LEVEL;
 
@@ -40,6 +42,8 @@ void print_total_count(int num_total_packets, int num_tpackets, int num_upackets
 void process_tcp(Packet *packet);
 
 int main(int argc, char** argv) {
+    
+    num_connections = 0;
 
     if (argc > 1) {
         FLAG = argv[1];
@@ -165,8 +169,10 @@ void process_tcp(Packet *packet) {
     if (conn == connections.end()) {
         std::cout << "New connection!" << endl;
         Connection c;
+        c.setId(num_connections);
         c.processPacket(packet);
         connections.insert(make_pair(key, c));
+        num_connections++;
     } else {
         conn->second.processPacket(packet);
     }

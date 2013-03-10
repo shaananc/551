@@ -128,8 +128,8 @@ bool Connection::processPacket(Packet *packet) {
             filename << id_num << ".initiator";
             std::ofstream init_file;
             init_file.open(filename.str().c_str(), ios::app);
-            cout << "PAYLOAD"  << tcp->payload << endl;
-            init_file << tcp->payload; //PAYLOAD OF INITIATOR
+            //cout << "PAYLOAD"  << tcp->payload << endl;
+            init_file << tcp->payload << endl; //PAYLOAD OF INITIATOR
             init_file.close();
             return true;
             
@@ -161,7 +161,7 @@ bool Connection::processPacket(Packet *packet) {
                         filename << id_num << ".receiver";
                         std::ofstream recv_file;
                         recv_file.open(filename.str().c_str(),ios::app);
-                        recv_file << tcp->payload; //PAYLOAD OF RESPONDER
+                        recv_file << tcp->payload << endl; //PAYLOAD OF RESPONDER
                         recv_file.close();
 
 

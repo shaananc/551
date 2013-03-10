@@ -114,6 +114,7 @@ bool Connection::processPacket(Packet *packet) {
                 if (iter->seq == tcp->seq && (iter->payload_size == tcp->payload_size)) {
                     init_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM INITIATOR. NEED TO PRINT
                     duplicate_exists = 1;
+                    cout << "duplicate sender?" << endl;
                 }
             }
 
@@ -130,6 +131,7 @@ bool Connection::processPacket(Packet *packet) {
                 if ((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)) {
                     recv_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM RESPONDER. NEED TO PRINT
                     duplicate_exists = 1;
+                    cout << "duplicate receiver?" << endl;
                 }
             }
 
@@ -151,7 +153,6 @@ bool Connection::processPacket(Packet *packet) {
                         init_file.open(filename.str().c_str());
 
                         filename.str("");
-                        cout << "filename:" << filename.str() << endl;
                         filename << id_num << ".receiver";
                         std::ofstream recv_file;
                         recv_file.open(filename.str().c_str());

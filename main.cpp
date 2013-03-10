@@ -195,6 +195,10 @@ void connection_died(Connection *c) {
 }
 
 void cleanup_connections() {
+      map<IpKey, Connection> ::iterator conn;
+      for(conn = connections.begin(); conn != connections.end(); conn++){
+          //conn->second.write_meta();
+      }
 
 
 }

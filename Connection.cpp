@@ -1,6 +1,9 @@
 #include <iostream>
 #include "Connection.h"
 #include "IpKey.h"
+#include <string.h> 
+#include <stdio.h>
+#include <fstream>
 
 using namespace std;
 #define SIZE_ETHERNET 14
@@ -54,7 +57,7 @@ bool Connection::processPacket(Packet *packet) {
 
      */
 
-
+    ofstream myfile;
     TCP *tcp = (TCP *) packet->transport;
     struct sniff_ip *ip = packet->ip;
 
@@ -65,9 +68,34 @@ bool Connection::processPacket(Packet *packet) {
     } else if (state == EST) {
         //all the manipulations for payload and bytes recvd and sent
         //TODO: needs to check for duplicates
+        char src[INET_ADDRSTRLEN];
+        char in[INET_ADDRSTRLEN];
+        char recv[INET_ADDRSTRLEN]; 
+        inet_ntop(AF_INET, &ip->ip_src, src, INET_ADDRSTRLEN); //IP of the source of the packet
+        inet_ntop(AF_INET, &initiator, in, INET_ADDRSTRLEN); //IP of the initiato
+        inet_ntop(AF_INET, &receiver, recv, INET_ADDRSTRLEN); //IP of the initiato
+
+        tcp->payload_size = ntohs(packet->ip->ip_len) - packet->ip_size - tcp->header_size; /* size of payload */
+        //tcp->payload = (Payload) (raw_packet + SIZE_ETHERNET + packet->ip_size + packet->transport->header_size); /* address of payload*/
+        if(strcmp(src,in)==0)
+       {
+        bytes_sent+=  tcp->payload_size;
+        packets_sent++;
+        cout<<"The packets and bytess sent are" <<bytes_sent<<packets_sent<<endl;
+       }
+       else if(strcmp(src,recv)==0)
+       {
+        packets_recv++;
+        bytes_recv+= tcp->payload_size;   
+        cout<<"The packets and bytess received are" <<bytes_recv<<packets_recv<<endl;
         
+        myfile.open ("example.txt");
+        myfile << "Swaraj Writing this to a file.\n";
+        myfile.close();
+  
+
         cout << "HERE!" << endl;
-        
+       } /*
         char src[INET_ADDRSTRLEN];
     	char in[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &ip->ip_src, src, INET_ADDRSTRLEN); //IP of the source of the packet
@@ -105,7 +133,7 @@ bool Connection::processPacket(Packet *packet) {
 		}
 				   
 	}
-
+*/
         //cout << tcp->payload << endl;
 
     } else {

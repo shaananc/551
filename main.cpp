@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
                 tcp->payload = (Payload) (raw_packet + SIZE_ETHERNET + packet->ip_size + packet->transport->header_size); /* address of payload*/
                 tcp->flags = raw_tcp->th_flags;
                 tcp->seq = raw_tcp->th_seq; /* tcp sequence number*/
-    			tcp->ack = raw_tcp->th_ack; /* tcp ACK number */
+    		    tcp->ack = raw_tcp->th_ack; /* tcp ACK number */
                 tcp->checksum = ntohs(raw_tcp->th_sum); /* checksum value in the packet*/
                 int comp_value = ((unsigned short) tcp_checksum((unsigned short) (tcp->header_size), (unsigned short *) &packet->ip->ip_src, (unsigned short *) &packet->ip->ip_dst, raw_tcp, tcp->payload, tcp->payload_size));
 

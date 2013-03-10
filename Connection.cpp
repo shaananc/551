@@ -26,6 +26,10 @@ void Connection::initializeConnection(Packet *packet) {
 
         init_duplicates = 0;
         recv_duplicates = 0;
+        bytes_recv = 0;
+        bytes_sent = 0;
+        packets_recv = 0;
+        packets_sent = 0;
 
 
     } else if ((tcp->flags & TH_SYN) && (tcp->flags & TH_ACK)) {
@@ -46,8 +50,7 @@ void Connection::initializeConnection(Packet *packet) {
         state = EST;
         cout << "Established." << endl;
 
-    }
-    else {
+    } else {
 
         cout << "ERROR" << endl;
     }
@@ -92,7 +95,7 @@ bool Connection::processPacket(Packet *packet) {
             bytes_recv += tcp->payload_size;
             cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
 
-            
+
             std::ostringstream str;
             str << id_num << ".meta";
             std::ofstream myfile;
@@ -101,14 +104,14 @@ bool Connection::processPacket(Packet *packet) {
             // TODO: Insert Metadata here
             myfile << "Swaraj Writing this to a file.\n" << std::endl;
             myfile.close();
- 
+
         }
 
         int duplicate_exists = 0;
 
         if (!(ip->ip_src.s_addr == initiator.s_addr)) { //the source of the packet is the initiator
             for (std::list<TCP>::iterator iter = init_buf.begin(); iter != init_buf.end(); iter++) {
-                if ((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)) {
+                if (iter->seq == tcp->seq && (iter->payload_size == tcp->payload_size)) {
                     init_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM INITIATOR. NEED TO PRINT
                     duplicate_exists = 1;
                 }
@@ -140,8 +143,28 @@ bool Connection::processPacket(Packet *packet) {
                 if (ntohl(it->seq) < ntohl(tcp->ack)) {
                     if (it->ack_complete != 1) {
                         it->ack_complete = 1;
-                        cout << it->payload << endl; //PAYLOAD OF INITIATOR
-                        cout << tcp->payload << endl; //PAYLOAD OF RESPONDER
+
+                        std::ostringstream filename;
+                        
+                        filename << id_num << ".initiator";
+                        std::ofstream init_file;
+                        init_file.open(filename.str().c_str());
+
+                        filename.str("");
+                        cout << "filename:" << filename.str() << endl;
+                        filename << id_num << ".receiver";
+                        std::ofstream recv_file;
+                        recv_file.open(filename.str().c_str());
+
+                        
+
+
+                        init_file << it->payload << endl; //PAYLOAD OF INITIATOR
+                        recv_file << tcp->payload << endl; //PAYLOAD OF RESPONDER
+                        
+                        init_file.close();
+                        recv_file.close();
+                        
                     }
                 }
             }
@@ -174,9 +197,7 @@ void Connection::checktermination(Packet* packet) {
         cout << "FIN Initiated" << endl;
         force_close = false;
     }
-
-    else if (state == FIN_INIT && (tcp->flags & TH_FIN)&&(tcp->flags & TH_ACK))
- {
+    else if (state == FIN_INIT && (tcp->flags & TH_FIN)&&(tcp->flags & TH_ACK)) {
         state = FIN_INIT;
         cout << "This FIN ACK is from Receiver indicating it also wants to terminate" << endl;
     } else if ((state == FIN_INIT)&&(tcp->flags & TH_ACK)) {
@@ -200,10 +221,10 @@ string Connection::getState() {
     return NULL;
 }
 
-void Connection::setKey(IpKey key){
+void Connection::setKey(IpKey key) {
     this->key = key;
 }
 
-IpKey Connection::getKey(){
+IpKey Connection::getKey() {
     return this->key;
 }

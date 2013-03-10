@@ -113,8 +113,8 @@ int main(int argc, char** argv) {
                 } else {
                     tcp->valid_checksum = false;
                 }
-
-                // if the packet is valid and the FLAG is TCP_STREAM
+                
+                
                 // perform additional logic
                 if (FLAG && strcmp("-t", FLAG) == 0) {
                     process_tcp(packet);

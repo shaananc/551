@@ -33,7 +33,15 @@ void Connection::initializeConnection(Packet *packet) {
         init_port = tcp->dest_port;
         recv_port = tcp->source_port;
 
-    } else if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->flags & TH_ACK)) {
+    } 
+      else if((state == SYN_REC)&&(tcp->flags & TH_RST))//added case for RST
+        {
+        
+        state = INIT;
+        cout<<"RST SENT"<<endl;
+        }
+
+      else if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->flags & TH_ACK)) {
         state = EST;
         cout << "Established." << endl;
 
@@ -87,9 +95,9 @@ bool Connection::processPacket(Packet *packet) {
        {
         packets_recv++;
         bytes_recv+= tcp->payload_size;   
-        cout<<"The packets and bytess received are" <<bytes_recv<<packets_recv<<endl;
+        cout<<"The packets and bytes received are" <<bytes_recv<<packets_recv<<endl;
         
-        myfile.open ("example.txt");
+        myfile.open ("example1.txt");
         myfile << "Swaraj Writing this to a file.\n";
         myfile.close();
   

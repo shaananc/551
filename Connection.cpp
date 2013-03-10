@@ -68,41 +68,41 @@ bool Connection::processPacket(Packet *packet) {
         
         char src[INET_ADDRSTRLEN];
     	char in[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &ip->ip_src, src, INET_ADDRSTRLEN); //IP of the source of the packet
-		inet_ntop(AF_INET, &initiator, in, INET_ADDRSTRLEN); //IP of the initiator
+	inet_ntop(AF_INET, &ip->ip_src, src, INET_ADDRSTRLEN); //IP of the source of the packet
+	inet_ntop(AF_INET, &initiator, in, INET_ADDRSTRLEN); //IP of the initiator
 		
-		if(!strcmp(src,in)){ //the source of the packet is the initiator
-			init.push_back(*tcp);
+	if(!strcmp(src,in)){ //the source of the packet is the initiator
+		init.push_back(*tcp);
 			
-			for(std::list<TCP>::iterator it = recv.begin(); it != recv.end(); it++){
-				if(ntohl(it->seq) < ntohl(tcp->ack)){ //the packet in the receiver buffer has been acknowledged
-					if(it->ack_complete != 1){ //if packet hasn't already been acknowledged
-						it->ack_complete = 1; //set the ACK field in tcp packet to complete (1).
-						if(it->payload_size > 0){
-							cout << it->payload <<endl; //print payload
-						}
-					
+		for(std::list<TCP>::iterator it = recv.begin(); it != recv.end(); it++){
+			if(ntohl(it->seq) < ntohl(tcp->ack)){ //the packet in the receiver buffer has been acknowledged
+				if(it->ack_complete != 1){ //if packet hasn't already been acknowledged
+					it->ack_complete = 1; //set the ACK field in tcp packet to complete (1).
+					if(it->payload_size > 0){
+						cout << it->payload <<endl; //print payload
 					}
+					
 				}
 			}
-			
-			
-		} else { //source of the packet is the receiver
-			recv.push_back(*tcp);
-			
-			for(std::list<TCP>::iterator it = init.begin(); it != init.end(); it++){
-				if(ntohl(it->seq) < ntohl(tcp->ack)){ //the packet in the initiator buffer has been acknowledged
-					if(it->ack_complete != 1){ //if packet hasn't already been acknowledged
-						it->ack_complete = 1; //set the ACK field in tcp packet to complete (1).
-						if(it->payload_size > 0){
-							cout << it->payload <<endl; //print payload
-						}
-					
-					}
-				}
-			}
-				   
 		}
+			
+			
+	} else { //source of the packet is the receiver
+		recv.push_back(*tcp);
+			
+		for(std::list<TCP>::iterator it = init.begin(); it != init.end(); it++){
+			if(ntohl(it->seq) < ntohl(tcp->ack)){ //the packet in the initiator buffer has been acknowledged
+				if(it->ack_complete != 1){ //if packet hasn't already been acknowledged
+					it->ack_complete = 1; //set the ACK field in tcp packet to complete (1).
+					if(it->payload_size > 0){
+						cout << it->payload <<endl; //print payload
+					}
+					
+				}
+			}
+		}
+				   
+	}
 
         //cout << tcp->payload << endl;
 

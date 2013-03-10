@@ -155,7 +155,7 @@ bool Connection::processPacket(Packet *packet) {
                 if (ntohl(it->seq) < ntohl(tcp->ack)) {
                     if (it->ack_complete != 1) {
                         it->ack_complete = 1;
-
+                        
                         std::ostringstream filename;
                         filename.str("");
                         filename << id_num << ".receiver";
@@ -164,6 +164,9 @@ bool Connection::processPacket(Packet *packet) {
                         recv_file << tcp->payload << endl; //PAYLOAD OF RESPONDER
                         recv_file.close();
 
+                        std::list<TCP>::iterator rm = it;
+                        ++it;
+                        init_buf.erase(rm);
 
                     }
                 }

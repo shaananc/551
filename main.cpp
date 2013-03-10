@@ -15,6 +15,7 @@
 #include "Connection.h"
 #include <map>
 
+
 #include "pktstruct.h"
 
 #include "IpKey.h"
@@ -83,9 +84,7 @@ int main(int argc, char** argv) {
         if (!(packet->ethernet->ether_type == PROT_IP)) {
             packet->transport_type = PROT_OTHER;
         } else {
-
-
-
+            
             packet->ip = (struct sniff_ip*) (raw_packet + SIZE_ETHERNET); /* address of ip header*/
             packet->ip_size = IP_HL(packet->ip)*4; /* size in bytes*/
 
@@ -141,9 +140,7 @@ int main(int argc, char** argv) {
             }
 
 
-            // TODO Print PACKET
             packet->PrintPacket();
-            //print_packet(packet); /* calls function to print packet info after parsing each packet*/
 
 
         }

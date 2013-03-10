@@ -124,6 +124,16 @@ bool Connection::processPacket(Packet *packet) {
 
             duplicate_exists = 0;
 
+            std::ostringstream filename;
+            filename << id_num << ".initiator";
+            std::ofstream init_file;
+            init_file.open(filename.str().c_str(), ios::app);
+            cout << "PAYLOAD"  << tcp->payload << endl;
+            init_file << tcp->payload; //PAYLOAD OF INITIATOR
+            init_file.close();
+            return true;
+            
+
 
         } else if (!(ip->ip_src.s_addr == receiver.s_addr)) {
             std::list<TCP>::iterator iter;
@@ -147,28 +157,18 @@ bool Connection::processPacket(Packet *packet) {
                         it->ack_complete = 1;
 
                         std::ostringstream filename;
-                        
-                        filename << id_num << ".initiator";
-                        std::ofstream init_file;
-                        init_file.open(filename.str().c_str());
-
                         filename.str("");
                         filename << id_num << ".receiver";
                         std::ofstream recv_file;
-                        recv_file.open(filename.str().c_str());
-
-                        
-
-
-                        init_file << it->payload << endl; //PAYLOAD OF INITIATOR
-                        recv_file << tcp->payload << endl; //PAYLOAD OF RESPONDER
-                        
-                        init_file.close();
+                        recv_file.open(filename.str().c_str(),ios::app);
+                        recv_file << tcp->payload; //PAYLOAD OF RESPONDER
                         recv_file.close();
-                        
+
+
                     }
                 }
             }
+            return true;
 
         }
 
@@ -197,8 +197,7 @@ void Connection::checktermination(Packet* packet) {
         state = FIN_INIT;
         cout << "FIN Initiated" << endl;
         force_close = false;
-    }
-    else if (state == FIN_INIT && (tcp->flags & TH_FIN)&&(tcp->flags & TH_ACK)) {
+    } else if (state == FIN_INIT && (tcp->flags & TH_FIN)&&(tcp->flags & TH_ACK)) {
         state = FIN_INIT;
         cout << "This FIN ACK is from Receiver indicating it also wants to terminate" << endl;
     } else if ((state == FIN_INIT)&&(tcp->flags & TH_ACK)) {

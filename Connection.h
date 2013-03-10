@@ -82,10 +82,7 @@ protected:
 
 public:
 
-    // returns whether or not contained usable payload
-    // calls seenPacket();
-    // updates variables (sent, recvd)
-    // throw exception on invalid packet
+
     bool processPacket(Packet *packet);
     void initializeConnection(Packet *packet);
     std::string getState();

@@ -44,8 +44,33 @@ void Connection::initializeConnection(Packet *packet) {
       else if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->flags & TH_ACK)) {
         state = EST;
         cout << "Established." << endl;
+      
+    } 
 
-    } else {
+else if(((state ==EST )&&(tcp->flags&TH_FIN))||((state ==EST )&&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK)))
+    {
+     //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination
+     state = FIN_INIT;
+     cout<<"FIN Initiated"<<endl;
+     force_close = false;
+    }
+
+
+else if(state ==FIN_INIT &&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK))
+
+     {
+     state = FIN_INIT;
+     cout<<"This FIN ACK is from Receiver indicating it also wants to terminate"<<endl;
+     }
+else if((state == FIN_INIT)&&(tcp->flags&TH_ACK))
+     {
+     state = FIN_EST;
+     force_close = true;
+     cout<<"Termination done"<<endl;
+     } 
+  else
+    {
+
         cout << "ERROR" << endl;
     }
 }

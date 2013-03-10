@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <vector>
 #include <string>
+#include <list>
 
 #include "pktstruct.h"
 #include "IpKey.h"
@@ -47,6 +48,8 @@ private:
     std::vector<u_short> checksums;
     std::vector<u_int32_t> awaitingACK;
     void setState(u_short state);
+    std::list<TCP> init; //buffer for initiator
+    std::list<TCP> recv; //buffer for receiver
 
 protected:
 

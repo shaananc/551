@@ -105,22 +105,13 @@ bool Connection::processPacket(Packet *packet) {
     if (state == INIT || state == SYN_REC || state == SYN_SENT) {
         initializeConnection(packet);
     } else if (state == EST) {
-        //all the manipulations for payload and bytes recvd and sent
-        //TODO: needs to check for duplicates
-        char src[INET_ADDRSTRLEN];
-        char in[INET_ADDRSTRLEN];
-        char recv[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &ip->ip_src, src, INET_ADDRSTRLEN); //IP of the source of the packet
-        inet_ntop(AF_INET, &initiator, in, INET_ADDRSTRLEN); //IP of the initiato
-        inet_ntop(AF_INET, &receiver, recv, INET_ADDRSTRLEN); //IP of the initiato
 
-        tcp->payload_size = ntohs(packet->ip->ip_len) - packet->ip_size - tcp->header_size; /* size of payload */
-        //tcp->payload = (Payload) (raw_packet + SIZE_ETHERNET + packet->ip_size + packet->transport->header_size); /* address of payload*/
-        if (strcmp(src, in) == 0) {
+
+        if (ip->ip_src.s_addr == initiator.s_addr) {
             bytes_sent += tcp->payload_size;
             packets_sent++;
             cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
-        } else if (strcmp(src, recv) == 0) {
+        } else if (ip->ip_src.s_addr == receiver.s_addr) {
             packets_recv++;
             bytes_recv += tcp->payload_size;
             cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
@@ -131,6 +122,7 @@ bool Connection::processPacket(Packet *packet) {
             std::ofstream myfile;
 
             myfile.open(str.str().c_str());
+            // TODO: Insert Metadata here
             myfile << "Swaraj Writing this to a file.\n" << std::endl;
             myfile.close();
  
@@ -138,7 +130,7 @@ bool Connection::processPacket(Packet *packet) {
 
         int duplicate_exists = 0;
 
-        if (!strcmp(src, in)) { //the source of the packet is the initiator
+        if (!(ip->ip_src.s_addr == initiator.s_addr)) { //the source of the packet is the initiator
             for (std::list<TCP>::iterator iter = init_buf.begin(); iter != init_buf.end(); iter++) {
                 if ((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)) {
                     init_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM INITIATOR. NEED TO PRINT
@@ -153,7 +145,7 @@ bool Connection::processPacket(Packet *packet) {
             duplicate_exists = 0;
 
 
-        } else if (!strcmp(src, recv)) {
+        } else if (!(ip->ip_src.s_addr == receiver.s_addr)) {
             std::list<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
                 if ((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)) {

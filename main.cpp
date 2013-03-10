@@ -40,9 +40,10 @@ map<IpKey, Connection> connections;
 
 void print_total_count(int num_total_packets, int num_tpackets, int num_upackets, int num_opackets);
 void process_tcp(Packet *packet);
+void cleanup_connections();
 
 int main(int argc, char** argv) {
-    
+
     num_connections = 0;
 
     if (argc > 1) {
@@ -95,13 +96,13 @@ int main(int argc, char** argv) {
                 struct sniff_tcp *raw_tcp = (struct sniff_tcp*) (raw_packet + SIZE_ETHERNET + packet->ip_size); /* address of tcp header located after ip header*/
 
 
-                TCP *tcp = (TCP *)packet->transport;
+                TCP *tcp = (TCP *) packet->transport;
                 tcp->header_size = TH_OFF(raw_tcp)*4; /* tcp size in bytes*/
                 tcp->payload_size = ntohs(packet->ip->ip_len) - packet->ip_size - tcp->header_size; /* size of payload */
                 tcp->payload = (Payload) (raw_packet + SIZE_ETHERNET + packet->ip_size + packet->transport->header_size); /* address of payload*/
                 tcp->flags = raw_tcp->th_flags;
                 tcp->seq = raw_tcp->th_seq; /* tcp sequence number*/
-    		    tcp->ack = raw_tcp->th_ack; /* tcp ACK number */
+                tcp->ack = raw_tcp->th_ack; /* tcp ACK number */
                 tcp->checksum = ntohs(raw_tcp->th_sum); /* checksum value in the packet*/
                 int comp_value = ((unsigned short) tcp_checksum((unsigned short) (tcp->header_size), (unsigned short *) &packet->ip->ip_src, (unsigned short *) &packet->ip->ip_dst, raw_tcp, tcp->payload, tcp->payload_size));
 
@@ -124,14 +125,14 @@ int main(int argc, char** argv) {
                 num_upackets++;
                 packet->transport_type = PROT_UDP;
                 packet->transport = new UDP();
-                
+
                 sniff_udp *raw_udp = (struct sniff_udp*) (raw_packet + SIZE_ETHERNET + packet->ip_size); /* address of udp*/
-                UDP *udp = (UDP *)packet->transport;
-                
+                UDP *udp = (UDP *) packet->transport;
+
                 udp->payload_size = ntohs(raw_udp->udp_hlen) - 8;
                 udp->source_port = ntohs(raw_udp->udp_sport);
                 udp->dest_port = ntohs(raw_udp->udp_dport);
-                
+
 
             } else { /* other types of packets*/
                 packet->transport_type = PROT_OTHER;
@@ -143,16 +144,19 @@ int main(int argc, char** argv) {
             packet->PrintPacket();
             //print_packet(packet); /* calls function to print packet info after parsing each packet*/
 
-            
+
         }
     }
+
+    if (FLAG && strcmp("-t", FLAG) == 0) {
+        cleanup_connections();
+    }
+
 
     print_total_count(num_total_packets, num_tpackets, num_upackets, num_opackets); /* prints the total number of packets parsed*/
 
     return (EXIT_SUCCESS);
 }
-
-
 
 /* print the number and type of packets parsed*/
 void print_total_count(int num_total_packets, int num_tpackets, int num_upackets, int num_opackets) {
@@ -163,7 +167,7 @@ void print_total_count(int num_total_packets, int num_tpackets, int num_upackets
 
 void process_tcp(Packet *packet) {
 
-    IpKey key = *(new IpKey(packet->ip, (TCP *)packet->transport));
+    IpKey key = *(new IpKey(packet->ip, (TCP *) packet->transport));
 
     map<IpKey, Connection> ::iterator conn = connections.find(key);
     if (conn == connections.end()) {
@@ -179,4 +183,10 @@ void process_tcp(Packet *packet) {
 
 
 
+
 }
+
+    
+    void cleanup_connections(){
+        
+    }

@@ -49,8 +49,8 @@ private:
     std::vector<u_short> checksums;
     std::vector<u_int32_t> awaitingACK;
     void setState(u_short state);
-    std::list<TCP> init; //buffer for initiator
-    std::list<TCP> recv; //buffer for receiver
+    std::list<TCP> init_buf; //buffer for initiator
+    std::list<TCP> recv_buf; //buffer for receiver
 
 protected:
 
@@ -70,6 +70,9 @@ protected:
     int bytes_sent;
 
     bool force_close;
+    
+    int init_duplicates;
+    int recv_duplicates;
 
 
 public:

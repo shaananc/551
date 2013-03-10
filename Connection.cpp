@@ -47,29 +47,6 @@ void Connection::initializeConnection(Packet *packet) {
         cout << "Established." << endl;
 
     }
-        /*
-        else if(((state ==EST )&&(tcp->flags&TH_FIN))||((state ==EST )&&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK)))
-            {
-             //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination
-             state = FIN_INIT;
-             cout<<"FIN Initiated"<<endl;
-             force_close = false;
-            }
-
-
-        else if(state ==FIN_INIT &&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK))
-
-             {
-             state = FIN_INIT;
-             cout<<"This FIN ACK is from Receiver indicating it also wants to terminate"<<endl;
-             }
-        else if((state == FIN_INIT)&&(tcp->flags&TH_ACK))
-             {
-             state = FIN_EST;
-             force_close = true;
-             cout<<"Termination done"<<endl;
-             }
-         */
     else {
 
         cout << "ERROR" << endl;
@@ -96,7 +73,6 @@ bool Connection::processPacket(Packet *packet) {
 
      */
 
-    //ofstream myfile;
     TCP *tcp = (TCP *) packet->transport;
     struct sniff_ip *ip = packet->ip;
 
@@ -222,4 +198,12 @@ string Connection::getState() {
 
     }
     return NULL;
+}
+
+void Connection::setKey(IpKey key){
+    this->key = key;
+}
+
+IpKey Connection::getKey(){
+    return this->key;
 }

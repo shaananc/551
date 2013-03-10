@@ -40,6 +40,7 @@ public:
         CLOSING = 7,
         CLOSE_WAIT = 8,
         FIN_EST = 9,
+        CLOSED = 10,
     };
 
 private:
@@ -54,6 +55,8 @@ private:
 
 protected:
 
+    IpKey key;
+    
     // the once who sent the syn
     struct in_addr initiator;
     struct in_addr receiver;
@@ -87,7 +90,10 @@ public:
     void initializeConnection(Packet *packet);
     std::string getState();
     void setId(int id_num);
+    void setKey(IpKey key);
+    IpKey getKey();
     void checktermination(Packet* packet);
+    void (*deathCallback)(Connection*);
 
 };
 

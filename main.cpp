@@ -41,6 +41,7 @@ map<IpKey, Connection> connections;
 void print_total_count(int num_total_packets, int num_tpackets, int num_upackets, int num_opackets);
 void process_tcp(Packet *packet);
 void cleanup_connections();
+void connection_died(Connection *c);
 
 int main(int argc, char** argv) {
 
@@ -173,8 +174,11 @@ void process_tcp(Packet *packet) {
     if (conn == connections.end()) {
         std::cout << "New connection!" << endl;
         Connection c;
+        c.deathCallback = &connection_died;
+        c.setKey(key);
         c.setId(num_connections);
-        c.processPacket(packet);
+        c.processPacket(packet); 
+        
         connections.insert(make_pair(key, c));
         num_connections++;
     } else {
@@ -186,7 +190,11 @@ void process_tcp(Packet *packet) {
 
 }
 
-    
-    void cleanup_connections(){
-        
-    }
+void connection_died(Connection *c) {
+    connections.erase(c->getKey());
+}
+
+void cleanup_connections() {
+
+
+}

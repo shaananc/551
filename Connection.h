@@ -25,8 +25,6 @@ public:
     Connection(struct in_addr src, struct in_addr dest, u_short src_port, u_short dst_port, int hashCode, int id_num) {
         ;
     }
-    
-    
 
     virtual ~Connection() {
     };
@@ -41,7 +39,7 @@ public:
         FIN_WAIT2 = 6,
         CLOSING = 7,
         CLOSE_WAIT = 8,
-        FIN_EST=9,
+        FIN_EST = 9,
     };
 
 private:
@@ -72,10 +70,10 @@ protected:
     int bytes_sent;
 
     bool force_close;
-    
+
     int init_duplicates;
     int recv_duplicates;
-    
+
     u_int id_num;
 
 
@@ -89,7 +87,7 @@ public:
     void initializeConnection(Packet *packet);
     std::string getState();
     void setId(int id_num);
-
+    void checktermination(Packet* packet);
 
 };
 

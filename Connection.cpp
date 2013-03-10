@@ -45,33 +45,32 @@ void Connection::initializeConnection(Packet *packet) {
     } else if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->flags & TH_ACK)) {
         state = EST;
         cout << "Established." << endl;
-      
-    } 
-/*
-else if(((state ==EST )&&(tcp->flags&TH_FIN))||((state ==EST )&&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK)))
-    {
-     //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination
-     state = FIN_INIT;
-     cout<<"FIN Initiated"<<endl;
-     force_close = false;
+
     }
+        /*
+        else if(((state ==EST )&&(tcp->flags&TH_FIN))||((state ==EST )&&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK)))
+            {
+             //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination
+             state = FIN_INIT;
+             cout<<"FIN Initiated"<<endl;
+             force_close = false;
+            }
 
 
-else if(state ==FIN_INIT &&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK))
+        else if(state ==FIN_INIT &&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK))
 
-     {
-     state = FIN_INIT;
-     cout<<"This FIN ACK is from Receiver indicating it also wants to terminate"<<endl;
-     }
-else if((state == FIN_INIT)&&(tcp->flags&TH_ACK))
-     {
-     state = FIN_EST;
-     force_close = true;
-     cout<<"Termination done"<<endl;
-     }
-*/ 
-  else
-    {
+             {
+             state = FIN_INIT;
+             cout<<"This FIN ACK is from Receiver indicating it also wants to terminate"<<endl;
+             }
+        else if((state == FIN_INIT)&&(tcp->flags&TH_ACK))
+             {
+             state = FIN_EST;
+             force_close = true;
+             cout<<"Termination done"<<endl;
+             }
+         */
+    else {
 
         cout << "ERROR" << endl;
     }
@@ -117,84 +116,69 @@ bool Connection::processPacket(Packet *packet) {
 
         tcp->payload_size = ntohs(packet->ip->ip_len) - packet->ip_size - tcp->header_size; /* size of payload */
         //tcp->payload = (Payload) (raw_packet + SIZE_ETHERNET + packet->ip_size + packet->transport->header_size); /* address of payload*/
-        if(strcmp(src,in)==0)
-       {
-        bytes_sent+=  tcp->payload_size;
-        packets_sent++;
-        cout<<"The packets and bytess sent are" <<bytes_sent<<packets_sent<<endl;
-       }
-       else if(strcmp(src,recv)==0)
-       {
-        packets_recv++;
-        bytes_recv+= tcp->payload_size;   
-        cout<<"The packets and bytes received are" <<bytes_recv<<packets_recv<<endl;
-       //while(true)
+        if (strcmp(src, in) == 0) {
+            bytes_sent += tcp->payload_size;
+            packets_sent++;
+            cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
+        } else if (strcmp(src, recv) == 0) {
+            packets_recv++;
+            bytes_recv += tcp->payload_size;
+            cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
 
-   //{ 
-/*
-   char integer_string[32];
-        char append[64] = ".meta"; 
-        int i =1;
-        sprintf(integer_string, "%d",i);
-        strcat(integer_string,append);
-        cout<<"the file name is "<<integer_string<<endl;
-  */   
-       //std::ofstream myfile(integer_string);
-       int i=1;
-       std::ostringstream str;
-       str <<i <<".meta";
-       std::ofstream myfile;
+            
+            std::ostringstream str;
+            str << id_num << ".meta";
+            std::ofstream myfile;
 
-       myfile.open(str.str().c_str());
-       myfile << "Swaraj Writing this to a file.\n"<<std::endl;
-      // myfile.close();
-        //i++;
-    //}
-        cout << "HERE!" << endl;
-       }
-       
-       int duplicate_exists = 0;
-		
-	if(!strcmp(src,in)){ //the source of the packet is the initiator
-		for(std::list<TCP>::iterator iter = init_buf.begin(); iter != init_buf.end(); iter++){
-			if((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)){
-				init_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM INITIATOR. NEED TO PRINT
-				duplicate_exists = 1;
-			}
-		}
-			
-		if(duplicate_exists == 0){
-			init_buf.push_back(*tcp);
-		}
-		
-		duplicate_exists = 0;
-			
-			
-	} else if(!strcmp(src, recv)) { 
-		for(std::list<TCP>::iterator iter = recv_buf.begin(); iter != recv_buf.end(); iter++){
-			if((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)){
-				recv_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM RESPONDER. NEED TO PRINT
-				duplicate_exists = 1;
-			}
-		}
-			
-		if(duplicate_exists == 0){
-			recv_buf.push_back(*tcp);
-		}
-		
-		duplicate_exists = 0;
-		
-		for(std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++){
-			if(ntohl(it->seq) < ntohl(tcp->ack)){ 
-				if(it->ack_complete != 1){ 
-					it->ack_complete = 1;
-					cout << it->payload <<endl; //PAYLOAD OF INITIATOR
-					cout << tcp->payload <<endl; //PAYLOAD OF RESPONDER
-				}
-			}
-		}
-				   
-	}
+            myfile.open(str.str().c_str());
+            myfile << "Swaraj Writing this to a file.\n" << std::endl;
+            myfile.close();
+ 
+        }
+
+        int duplicate_exists = 0;
+
+        if (!strcmp(src, in)) { //the source of the packet is the initiator
+            for (std::list<TCP>::iterator iter = init_buf.begin(); iter != init_buf.end(); iter++) {
+                if ((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)) {
+                    init_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM INITIATOR. NEED TO PRINT
+                    duplicate_exists = 1;
+                }
+            }
+
+            if (duplicate_exists == 0) {
+                init_buf.push_back(*tcp);
+            }
+
+            duplicate_exists = 0;
+
+
+        } else if (!strcmp(src, recv)) {
+            std::list<TCP>::iterator iter;
+            for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
+                if ((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)) {
+                    recv_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM RESPONDER. NEED TO PRINT
+                    duplicate_exists = 1;
+                }
+            }
+
+            if (duplicate_exists == 0) {
+                recv_buf.push_back(*tcp);
+            }
+
+            duplicate_exists = 0;
+            std::list<TCP>::iterator it;
+            for (it = init_buf.begin(); it != init_buf.end(); it++) {
+                if (ntohl(it->seq) < ntohl(tcp->ack)) {
+                    if (it->ack_complete != 1) {
+                        it->ack_complete = 1;
+                        cout << it->payload << endl; //PAYLOAD OF INITIATOR
+                        cout << tcp->payload << endl; //PAYLOAD OF RESPONDER
+                    }
+                }
+            }
+
+        }
 
 
     } else {
@@ -213,39 +197,30 @@ bool Connection::seenPacket() {
     return false;
     // TODO implement
 }
-void Connection::checktermination(Packet* packet)
-{
- TCP* tcp = (TCP*)(packet->transport);
- if(((state ==EST )&&(tcp->flags&TH_FIN))||((state ==EST )&&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK)))
-    {
-     //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination
-     state = FIN_INIT;
-     cout<<"FIN Initiated"<<endl;
-     force_close = false;
+
+void Connection::checktermination(Packet* packet) {
+    TCP* tcp = (TCP*) (packet->transport);
+    if (((state == EST)&&(tcp->flags & TH_FIN)) || ((state == EST)&&(tcp->flags & TH_FIN)&&(tcp->flags & TH_ACK))) {
+        //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination
+        state = FIN_INIT;
+        cout << "FIN Initiated" << endl;
+        force_close = false;
     }
 
-
-else if(state ==FIN_INIT &&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK))
-
-     {
-     state = FIN_INIT;
-     cout<<"This FIN ACK is from Receiver indicating it also wants to terminate"<<endl;
-     }
-else if((state == FIN_INIT)&&(tcp->flags&TH_ACK))
-     {
-     state = FIN_EST;
-     force_close = true;
-     cout<<"Termination done"<<endl;
-     }
-  else
-    {
+    else if (state == FIN_INIT && (tcp->flags & TH_FIN)&&(tcp->flags & TH_ACK))
+ {
+        state = FIN_INIT;
+        cout << "This FIN ACK is from Receiver indicating it also wants to terminate" << endl;
+    } else if ((state == FIN_INIT)&&(tcp->flags & TH_ACK)) {
+        state = FIN_EST;
+        force_close = true;
+        cout << "Termination done" << endl;
+    } else {
 
         cout << "ERROR" << endl;
     }
 
 }
-
-
 
 string Connection::getState() {
     switch (state) {

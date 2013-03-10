@@ -137,7 +137,7 @@ bool Connection::processPacket(Packet *packet) {
 		
 	if(!strcmp(src,in)){ //the source of the packet is the initiator
 		for(std::list<TCP>::iterator iter = init_buf.begin(); iter != init_buf.end(); iter++){
-			if(ntohl(iter->seq) == ntohl(tcp->seq)){
+			if((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)){
 				init_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM INITIATOR. NEED TO PRINT
 				duplicate_exists = 1;
 			}
@@ -152,7 +152,7 @@ bool Connection::processPacket(Packet *packet) {
 			
 	} else if(!strcmp(src, recv)) { 
 		for(std::list<TCP>::iterator iter = recv_buf.begin(); iter != recv_buf.end(); iter++){
-			if(ntohl(iter->seq) == ntohl(tcp->seq)){
+			if((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)){
 				recv_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM RESPONDER. NEED TO PRINT
 				duplicate_exists = 1;
 			}

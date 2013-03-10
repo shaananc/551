@@ -78,9 +78,9 @@ bool Connection::processPacket(Packet *packet) {
 			if(ntohl(it->seq) < ntohl(tcp->ack)){ //the packet in the receiver buffer has been acknowledged
 				if(it->ack_complete != 1){ //if packet hasn't already been acknowledged
 					it->ack_complete = 1; //set the ACK field in tcp packet to complete (1).
-					if(it->payload_size > 0){
+					//if(it->payload_size > 0){
 						cout << it->payload <<endl; //print payload
-					}
+					//}
 					
 				}
 			}
@@ -94,9 +94,9 @@ bool Connection::processPacket(Packet *packet) {
 			if(ntohl(it->seq) < ntohl(tcp->ack)){ //the packet in the initiator buffer has been acknowledged
 				if(it->ack_complete != 1){ //if packet hasn't already been acknowledged
 					it->ack_complete = 1; //set the ACK field in tcp packet to complete (1).
-					if(it->payload_size > 0){
+					//if(it->payload_size > 0){
 						cout << it->payload <<endl; //print payload
-					}
+					//}
 					
 				}
 			}

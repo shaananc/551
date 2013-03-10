@@ -146,7 +146,8 @@ bool Connection::processPacket(Packet *packet) {
 		if(duplicate_exists == 0){
 			init_buf.push_back(*tcp);
 		}
-			
+		
+		duplicate_exists = 0;
 			
 			
 	} else if(!strcmp(src, recv)) { 
@@ -160,7 +161,9 @@ bool Connection::processPacket(Packet *packet) {
 		if(duplicate_exists == 0){
 			recv_buf.push_back(*tcp);
 		}
-			
+		
+		duplicate_exists = 0;
+		
 		for(std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++){
 			if(ntohl(it->seq) < ntohl(tcp->ack)){ 
 				if(it->ack_complete != 1){ 

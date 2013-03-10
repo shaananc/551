@@ -64,6 +64,8 @@ bool Connection::processPacket(Packet *packet) {
         initializeConnection(packet);
     } else if (state == EST) {
         //all the manipulations for payload and bytes recvd and sent
+        //TODO: needs to check for duplicates
+        
         cout << "HERE!" << endl;
         
         char src[INET_ADDRSTRLEN];

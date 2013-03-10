@@ -56,7 +56,7 @@ bool Connection::processPacket(Packet *packet) {
 
 
     TCP *tcp = (TCP *) packet->transport;
-
+    struct sniff_ip *ip = packet->ip;
 
     // First step - check if SYN or SYN-ACK
     // All these lines should check sequence numbers on the ACK
@@ -65,7 +65,46 @@ bool Connection::processPacket(Packet *packet) {
     } else if (state == EST) {
         //all the manipulations for payload and bytes recvd and sent
         cout << "HERE!" << endl;
-        cout << tcp->payload << endl;
+        
+        char src[INET_ADDRSTRLEN];
+    	char in[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &ip->ip_src, src, INET_ADDRSTRLEN); //IP of the source of the packet
+		inet_ntop(AF_INET, &initiator, in, INET_ADDRSTRLEN); //IP of the initiator
+		
+		if(!strcmp(src,in)){ //the source of the packet is the initiator
+			init.push_back(*tcp);
+			
+			for(std::list<TCP>::iterator it = recv.begin(); it != recv.end(); it++){
+				if(ntohl(it->seq) < ntohl(tcp->ack)){ //the packet in the receiver buffer has been acknowledged
+					if(it->ack_complete != 1){ //if packet hasn't already been acknowledged
+						it->ack_complete = 1; //set the ACK field in tcp packet to complete (1).
+						if(it->payload_size > 0){
+							cout << it->payload <<endl; //print payload
+						}
+					
+					}
+				}
+			}
+			
+			
+		} else { //source of the packet is the receiver
+			recv.push_back(*tcp);
+			
+			for(std::list<TCP>::iterator it = init.begin(); it != init.end(); it++){
+				if(ntohl(it->seq) < ntohl(tcp->ack)){ //the packet in the initiator buffer has been acknowledged
+					if(it->ack_complete != 1){ //if packet hasn't already been acknowledged
+						it->ack_complete = 1; //set the ACK field in tcp packet to complete (1).
+						if(it->payload_size > 0){
+							cout << it->payload <<endl; //print payload
+						}
+					
+					}
+				}
+			}
+				   
+		}
+
+        //cout << tcp->payload << endl;
 
     } else {
         cout << "uhoh" << endl;

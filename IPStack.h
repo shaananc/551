@@ -42,6 +42,9 @@ public:
     bool valid_checksum;
     int checksum;
     u_char flags;
+    tcp_seq seq;
+    tcp_seq ack;
+	int ack_complete;
 
 };
 

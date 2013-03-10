@@ -147,16 +147,7 @@ bool Connection::processPacket(Packet *packet) {
 			init_buf.push_back(*tcp);
 		}
 			
-			/*
-			for(std::list<TCP>::iterator it = recv.begin(); it != recv.end(); it++){
-				if(ntohl(it->seq) < ntohl(tcp->ack)){ //the packet in the receiver buffer has been acknowledged
-					if(it->ack_complete != 1){ //if packet hasn't already been acknowledged
-						it->ack_complete = 1; //set the ACK field in tcp packet to complete (1).
-						cout << it->payload <<endl; //print payload
-					}
-				}
-			}
-			*/
+			
 			
 	} else if(!strcmp(src, recv)) { 
 		for(std::list<TCP>::iterator iter = recv_buf.begin(); iter != recv_buf.end(); iter++){

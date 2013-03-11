@@ -84,7 +84,7 @@ public:
     bool processPacket(Packet *packet);
     void initializeConnection(Packet *packet);
     std::string getState();
-
+    void checktermination(Packet* packet);
 //    friend std::ostream& operator<<(std::ostream &out, Connection & c) {
 //        char src_s[INET_ADDRSTRLEN];
 //        char dst_s[INET_ADDRSTRLEN];

@@ -50,7 +50,7 @@ void Connection::initializeConnection(Packet *packet) {
         cout << "Established." << endl;
       
     } 
-
+/*
 else if(((state ==EST )&&(tcp->flags&TH_FIN))||((state ==EST )&&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK)))
     {
      //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination
@@ -71,12 +71,14 @@ else if((state == FIN_INIT)&&(tcp->flags&TH_ACK))
      state = FIN_EST;
      force_close = true;
      cout<<"Termination done"<<endl;
-     } 
+     }
+*/ 
   else
     {
 
         cout << "ERROR" << endl;
     }
+
 }
 
 Connection::Connection() {
@@ -128,21 +130,23 @@ bool Connection::processPacket(Packet *packet) {
        //while(true)
 
    //{ 
+/*
    char integer_string[32];
         char append[64] = ".meta"; 
         int i =1;
         sprintf(integer_string, "%d",i);
         strcat(integer_string,append);
         cout<<"the file name is "<<integer_string<<endl;
-     
-       std::ofstream myfile;
-    /*   int i=1;
+  */   
+       //std::ofstream myfile(integer_string);
+       int i=1;
        std::ostringstream str;
        str <<i <<".meta";
-    */
-       myfile.open (integer_string);
-       myfile << "Swaraj Writing this to a file.\n";
-       myfile.close();
+       std::ofstream myfile;
+
+       myfile.open(str.str().c_str());
+       myfile << "Swaraj Writing this to a file.\n"<<std::endl;
+      // myfile.close();
         //i++;
     //}
         cout << "HERE!" << endl;
@@ -208,6 +212,39 @@ bool Connection::seenPacket() {
     return false;
     // TODO implement
 }
+void Connection::checktermination(Packet* packet)
+{
+ TCP* tcp = (TCP*)(packet->transport);
+ if(((state ==EST )&&(tcp->flags&TH_FIN))||((state ==EST )&&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK)))
+    {
+     //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination
+     state = FIN_INIT;
+     cout<<"FIN Initiated"<<endl;
+     force_close = false;
+    }
+
+
+else if(state ==FIN_INIT &&(tcp->flags&TH_FIN)&&(tcp->flags&TH_ACK))
+
+     {
+     state = FIN_INIT;
+     cout<<"This FIN ACK is from Receiver indicating it also wants to terminate"<<endl;
+     }
+else if((state == FIN_INIT)&&(tcp->flags&TH_ACK))
+     {
+     state = FIN_EST;
+     force_close = true;
+     cout<<"Termination done"<<endl;
+     }
+  else
+    {
+
+        cout << "ERROR" << endl;
+    }
+
+}
+
+
 
 string Connection::getState() {
     switch (state) {

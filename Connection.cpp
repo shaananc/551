@@ -73,29 +73,24 @@ void Connection::writeMeta() {
     filename << id_num << ".meta";
     std::ofstream recv_file;
     recv_file.open(filename.str().c_str(), ios::app);
-    
-//    [ip_ini] [ip_rsp]
-//[port_ini] [port_rsp]
-//[NO. pkt_ini] [NO. pkt_rsp]
-//[NO. byte_ini] [NO. byte_rsp]
-//[NO. dup_ini] [NO. dup_rsp]
-//[bool_tcp_closed]
-    
+
+    char source_addr[INET_ADDRSTRLEN];
+    char dest_addr[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &initiator, source_addr, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &receiver, dest_addr, INET_ADDRSTRLEN);
+
+    printf("%s %s",source_addr,dest_addr);
+    cout << init_port << " " << recv_port << endl;
+    cout << packets_sent << " " << packets_recv << endl;
+    cout << init_duplicates << " " << recv_duplicates << endl;
+    cout << force_close << " " << endl;
+
+
     recv_file.close();
 
 }
 
 bool Connection::processPacket(Packet *packet) {
-    /*
-    The logic goes like this 
-    1)I see a tcp i check whether its part of vector of sequence no.If no I add it to the vector of sequence nos as well as checksums.If it not present its not a duplicate and I add it to the vector,other wise print that its duplicate
-    2)Then check for the SYN as well as ACK flag if syc is set this means we receive the sync and hence the state is SYNRCVD,if sync and ack both are set then we sent the sync and the state is SYNCSENT.
-    3)After this any ack tcp rcvd with a seq no difference of 1 takes the state to ESTABLISHED after which we get the payload and assign to byte sent or byte recvd state depending on if we sent the sync or we received the sync.
-    4)The temination of connection is still to be discussed with TA for EOF part
-
-
-     */
-
     TCP *tcp = (TCP *) packet->transport;
     struct sniff_ip *ip = packet->ip;
     int duplicate_exists;
@@ -255,9 +250,8 @@ IpKey Connection::getKey() {
     return this->key;
 }
 
-
-void Connection::forceClose(){
+void Connection::forceClose() {
     force_close = true;
     this->writeMeta();
-    
+
 }

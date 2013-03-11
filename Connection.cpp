@@ -66,6 +66,25 @@ void Connection::setId(int id_num) {
     this->id_num = id_num;
 }
 
+void Connection::writeMeta() {
+
+    std::ostringstream filename;
+    filename.str("");
+    filename << id_num << ".meta";
+    std::ofstream recv_file;
+    recv_file.open(filename.str().c_str(), ios::app);
+    
+//    [ip_ini] [ip_rsp]
+//[port_ini] [port_rsp]
+//[NO. pkt_ini] [NO. pkt_rsp]
+//[NO. byte_ini] [NO. byte_rsp]
+//[NO. dup_ini] [NO. dup_rsp]
+//[bool_tcp_closed]
+    
+    recv_file.close();
+
+}
+
 bool Connection::processPacket(Packet *packet) {
     /*
     The logic goes like this 
@@ -103,13 +122,6 @@ bool Connection::processPacket(Packet *packet) {
                 init_buf.push_back(*tcp);
             }
 
-            //cout << tcp->payload;
-
-            /*for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
-                    //cout << it->payload;
-            }*/
-
-            //cout << tcp->payload;
             std::list<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
                 //cout << iter->payload;
@@ -131,15 +143,6 @@ bool Connection::processPacket(Packet *packet) {
                         }
 
                         recv_file.close();
-
-
-
-
-                        //cout << iter->payload;
-                        //std::list<TCP>::iterator rm = iter;
-                        //++iter;
-                        //recv_buf.erase(rm);
-
                         iter = recv_buf.erase(iter);
 
                     }
@@ -150,7 +153,7 @@ bool Connection::processPacket(Packet *packet) {
 
             bytes_sent += tcp->payload_size;
             packets_sent++;
-            cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
+            //cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
         } else if (ip->ip_src.s_addr == receiver.s_addr) {
             std::list<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
@@ -184,13 +187,7 @@ bool Connection::processPacket(Packet *packet) {
                             p++;
                             i++;
                         }
-                        //init_file << endl;
                         init_file.close();
-
-                        //std::list<TCP>::iterator rm = it;
-                        //++it;
-                        //init_buf.erase(rm);
-                        //cout << it->payload;
                         it = init_buf.erase(it);
 
                     }
@@ -200,17 +197,7 @@ bool Connection::processPacket(Packet *packet) {
 
             packets_recv++;
             bytes_recv += tcp->payload_size;
-            cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
-
-
-            std::ostringstream str;
-            str << id_num << ".meta";
-            std::ofstream myfile;
-
-            myfile.open(str.str().c_str());
-            // TODO: Insert Metadata here
-            myfile << "Swaraj Writing this to a file.\n" << std::endl;
-            myfile.close();
+            //cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
 
         }
 
@@ -226,11 +213,6 @@ bool Connection::processPacket(Packet *packet) {
     //TODO implement
 
 
-}
-
-bool Connection::seenPacket() {
-    return false;
-    // TODO implement
 }
 
 void Connection::checktermination(Packet* packet) {

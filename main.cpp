@@ -169,7 +169,7 @@ void process_tcp(Packet *packet) {
 
     map<IpKey, Connection> ::iterator conn = connections.find(key);
     if (conn == connections.end()) {
-        std::cout << "New connection!" << endl;
+        std::cout << "New connection! " << endl;
         Connection c;
         c.deathCallback = &connection_died;
         c.setKey(key);
@@ -194,6 +194,7 @@ void connection_died(Connection *c) {
 void cleanup_connections() {
       map<IpKey, Connection> ::iterator conn;
       for(conn = connections.begin(); conn != connections.end(); conn++){
+          
           //conn->second.write_meta();
       }
 

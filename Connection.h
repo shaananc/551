@@ -45,10 +45,6 @@ public:
 
 private:
 
-    bool seenPacket();
-
-    std::vector<u_short> checksums;
-    std::vector<u_int32_t> awaitingACK;
     void setState(u_short state);
     std::list<TCP> init_buf; //buffer for initiator
     std::list<TCP> recv_buf; //buffer for receiver
@@ -56,7 +52,7 @@ private:
 protected:
 
     IpKey key;
-    
+
     // the once who sent the syn
     struct in_addr initiator;
     struct in_addr receiver;
@@ -91,6 +87,8 @@ public:
     IpKey getKey();
     void checktermination(Packet* packet);
     void (*deathCallback)(Connection*);
+    void Connection::writeMeta();
+
 
 };
 

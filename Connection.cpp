@@ -21,10 +21,9 @@ void Connection::initializeConnection(Packet *packet) {
         state = SYN_SENT;
         initiator = ip->ip_src;
         receiver = ip->ip_dst;
-        this->init_port = tcp->source_port;
-        this->recv_port = tcp->dest_port;
-        cout << tcp->source_port << endl;
-        cout << tcp->dest_port << endl;
+        init_port = tcp->source_port;
+        recv_port = tcp->dest_port;
+        packets_sent++;
 
 
     } else if ((tcp->flags & TH_SYN) && (tcp->flags & TH_ACK)) {
@@ -33,18 +32,20 @@ void Connection::initializeConnection(Packet *packet) {
         //cout << "The current state is " << state << endl;
         initiator = ip->ip_dst;
         receiver = ip->ip_src;
-        //init_port = tcp->dest_port;
-        //recv_port = tcp->source_port;
+        init_port = tcp->dest_port;
+        recv_port = tcp->source_port;
+        packets_recv++;
 
     } else if ((state == SYN_REC)&&(tcp->flags & TH_RST))//added case for RST
     {
-
+      
         state = INIT;
         cout << "RST SENT" << endl;
     } else if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->flags & TH_ACK)) {
         state = EST;
         cout << "Established." << endl;
-
+        packets_sent++;
+        
     } else {
 
         cout << "ERROR" << endl;
@@ -263,5 +264,5 @@ void Connection::forceClose() {
     force_close = true;
     cout << "force close" << endl;
     this->writeMeta();
-
+    
 }

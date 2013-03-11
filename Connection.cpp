@@ -59,7 +59,7 @@ Connection::Connection() {
     bytes_sent = 0;
     packets_recv = 0;
     packets_sent = 0;
-
+    force_close = false;
 }
 
 void Connection::setId(int id_num) {

@@ -87,7 +87,7 @@ void Connection::writeMeta() {
 //    cout << init_duplicates << " " << recv_duplicates << endl;
 //    cout << force_close << " " << endl;
     
-    recv_file << source_addr << " " << dest_addr;
+    recv_file << source_addr << " " << dest_addr << endl;
     recv_file << init_port << " " << recv_port << endl;
     recv_file << packets_sent << " " << packets_recv << endl;
     recv_file << init_duplicates << " " << recv_duplicates << endl;

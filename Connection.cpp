@@ -78,6 +78,9 @@ bool Connection::processPacket(Packet *packet) {
 
     TCP *tcp = (TCP *) packet->transport;
     struct sniff_ip *ip = packet->ip;
+    int duplicate_exists;
+
+
 
     // First step - check if SYN or SYN-ACK
     // All these lines should check sequence numbers on the ACK
@@ -88,98 +91,116 @@ bool Connection::processPacket(Packet *packet) {
 
         if (ip->ip_src.s_addr == initiator.s_addr) {
             duplicate_exists = 0;
-    		
-			for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
-				if(it->seq == tcp->seq){// && (it->payload_size <= tcp->payload_size)){
-					duplicate_exists = 1;
-				}
-			}
-			
-			if(duplicate_exists == 0){
-				init_buf.push_back(*tcp);
-			}
-			
-			//cout << tcp->payload;
-			
-			/*for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
-				//cout << it->payload;
-			}*/
-			
-			//cout << tcp->payload;
-			std::list<TCP>::iterator iter;
-			for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
-				//cout << iter->payload;
-				if(iter->seq < tcp->ack){
-					if(iter->ack_complete != 1){
-						iter->ack_complete = 1;
-						
-						std::ostringstream filename;
-						 filename.str("");
-						 filename << id_num << ".receiver";
-						 std::ofstream recv_file;
-						 recv_file.open(filename.str().c_str(),ios::app);
-						 recv_file <<iter->payload << endl; //PAYLOAD OF RESPONDER
-						 recv_file.close();
-						
-						//cout << iter->payload;
-						//std::list<TCP>::iterator rm = iter;
-						//++iter;
-						//recv_buf.erase(rm);
-						
-						iter = recv_buf.erase(iter);
-						
-					}
-				}
-			}
-			
-		
-            
+
+            for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
+                if (it->seq == tcp->seq) {// && (it->payload_size <= tcp->payload_size)){
+                    duplicate_exists = 1;
+                }
+            }
+
+            if (duplicate_exists == 0) {
+                init_buf.push_back(*tcp);
+            }
+
+            //cout << tcp->payload;
+
+            /*for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
+                    //cout << it->payload;
+            }*/
+
+            //cout << tcp->payload;
+            std::list<TCP>::iterator iter;
+            for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
+                //cout << iter->payload;
+                if (iter->seq < tcp->ack) {
+                    if (iter->ack_complete != 1) {
+                        iter->ack_complete = 1;
+
+                        std::ostringstream filename;
+                        filename.str("");
+                        filename << id_num << ".receiver";
+                        std::ofstream recv_file;
+                        recv_file.open(filename.str().c_str(), ios::app);
+                        u_char *p = tcp->payload;
+                        int i = 0;
+                        while (*p && i < tcp->payload_size) {
+                            recv_file << *p;
+                            p++;
+                            i++;
+                        }
+                        recv_file << endl;
+                        //recv_file << iter->payload << endl; //PAYLOAD OF RESPONDER
+                        recv_file.close();
+
+
+                        
+
+                        //cout << iter->payload;
+                        //std::list<TCP>::iterator rm = iter;
+                        //++iter;
+                        //recv_buf.erase(rm);
+
+                        iter = recv_buf.erase(iter);
+
+                    }
+                }
+            }
+
+
+
             bytes_sent += tcp->payload_size;
             packets_sent++;
-            cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
+            //cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
         } else if (ip->ip_src.s_addr == receiver.s_addr) {
             std::list<TCP>::iterator iter;
-    		for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
-				if(iter->seq == tcp->seq){ //&& (iter->payload_size <= tcp->payload_size)){
-					duplicate_exists = 1;
-				}
-			}
-			
-			
-			if(duplicate_exists == 0){
-				
-				recv_buf.push_back(*tcp);
-			}
-			//cout << tcp->payload;
-			
-			for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
-				//cout << it->payload;
-				if(it->seq < tcp->ack){
-					if(it->ack_complete != 1){
-						it->ack_complete = 1;
-						
-						std::ostringstream filename;
-						 filename << id_num << ".initiator";
-						 std::ofstream init_file;
-						 init_file.open(filename.str().c_str(), ios::app);
-						 //cout << "PAYLOAD"  << tcp->payload << endl;
-						 init_file <<it->payload << endl; //PAYLOAD OF INITIATOR
-						 init_file.close();
-						
-						//std::list<TCP>::iterator rm = it;
-						//++it;
-						//init_buf.erase(rm);
-						//cout << it->payload;
-						it = init_buf.erase(it);
-						
-					}
-				}
-			}
-			
+            for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
+                if (iter->seq == tcp->seq) { //&& (iter->payload_size <= tcp->payload_size)){
+                    duplicate_exists = 1;
+                }
+            }
+
+
+            if (duplicate_exists == 0) {
+
+                recv_buf.push_back(*tcp);
+            }
+            //cout << tcp->payload;
+
+            for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
+                //cout << it->payload;
+                if (it->seq < tcp->ack) {
+                    if (it->ack_complete != 1) {
+                        it->ack_complete = 1;
+
+                        std::ostringstream filename;
+                        filename << id_num << ".initiator";
+                        std::ofstream init_file;
+                        init_file.open(filename.str().c_str(), ios::app);
+                        //cout << "PAYLOAD"  << tcp->payload << endl;
+                        u_char *p = tcp->payload;
+                        int i = 0;
+                        while (*p && i < tcp->payload_size) {
+                            init_file << *p;
+                            p++;
+                            i++;
+                        }
+                        init_file << endl;
+                        init_file.close();
+
+                        //std::list<TCP>::iterator rm = it;
+                        //++it;
+                        //init_buf.erase(rm);
+                        //cout << it->payload;
+                        it = init_buf.erase(it);
+
+                    }
+                }
+            }
+
 
             packets_recv++;
             bytes_recv += tcp->payload_size;
-            cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
+            //cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
 
 
             std::ostringstream str;
@@ -192,74 +213,7 @@ bool Connection::processPacket(Packet *packet) {
             myfile.close();
 
         }
-    /*
-        int duplicate_exists = 0;
 
-        if (!(ip->ip_src.s_addr == initiator.s_addr)) { //the source of the packet is the initiator
-            for (std::list<TCP>::iterator iter = init_buf.begin(); iter != init_buf.end(); iter++) {
-                if (iter->seq == tcp->seq && (iter->payload_size == tcp->payload_size)) {
-                    init_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM INITIATOR. NEED TO PRINT
-                    duplicate_exists = 1;
-                    cout << "duplicate sender?" << endl;
-                }
-            }
-
-            if (duplicate_exists == 0) {
-                init_buf.push_back(*tcp);
-            }
-
-            duplicate_exists = 0;
-
-            std::ostringstream filename;
-            filename << id_num << ".initiator";
-            std::ofstream init_file;
-            init_file.open(filename.str().c_str(), ios::app);
-            //cout << "PAYLOAD"  << tcp->payload << endl;
-            init_file << tcp->payload << endl; //PAYLOAD OF INITIATOR
-            init_file.close();
-            return true;
-            
-
-
-        } else if (!(ip->ip_src.s_addr == receiver.s_addr)) {
-            std::list<TCP>::iterator iter;
-            for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
-                if ((ntohl(iter->seq) == ntohl(tcp->seq)) && (iter->payload_size == tcp->payload_size)) {
-                    recv_duplicates++; //NUMBER OF DUPLICATE PACKETS FROM RESPONDER. NEED TO PRINT
-                    duplicate_exists = 1;
-                    cout << "duplicate receiver?" << endl;
-                }
-            }
-
-            if (duplicate_exists == 0) {
-                recv_buf.push_back(*tcp);
-            }
-
-            duplicate_exists = 0;
-            std::list<TCP>::iterator it;
-            for (it = init_buf.begin(); it != init_buf.end(); it++) {
-                if (ntohl(it->seq) < ntohl(tcp->ack)) {
-                    if (it->ack_complete != 1) {
-                        it->ack_complete = 1;
-                        
-                        std::ostringstream filename;
-                        filename.str("");
-                        filename << id_num << ".receiver";
-                        std::ofstream recv_file;
-                        recv_file.open(filename.str().c_str(),ios::app);
-                        recv_file << tcp->payload << endl; //PAYLOAD OF RESPONDER
-                        recv_file.close();
-
-                        std::list<TCP>::iterator rm = it;
-                        ++it;
-                        init_buf.erase(rm);
-
-                    }
-                }
-            }
-            return true;
-        */
-    
 
 
     } else {

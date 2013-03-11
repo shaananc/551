@@ -4,6 +4,7 @@
 #include <string.h> 
 #include <stdio.h>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 #define SIZE_ETHERNET 14
@@ -93,7 +94,7 @@ bool Connection::processPacket(Packet *packet) {
 
      */
 
-    ofstream myfile;
+    //ofstream myfile;
     TCP *tcp = (TCP *) packet->transport;
     struct sniff_ip *ip = packet->ip;
 
@@ -124,12 +125,26 @@ bool Connection::processPacket(Packet *packet) {
         packets_recv++;
         bytes_recv+= tcp->payload_size;   
         cout<<"The packets and bytes received are" <<bytes_recv<<packets_recv<<endl;
-        
-        myfile.open ("example1.txt");
-        myfile << "Swaraj Writing this to a file.\n";
-        myfile.close();
-  
+       //while(true)
 
+   //{ 
+   char integer_string[32];
+        char append[64] = ".meta"; 
+        int i =1;
+        sprintf(integer_string, "%d",i);
+        strcat(integer_string,append);
+        cout<<"the file name is "<<integer_string<<endl;
+     
+       std::ofstream myfile;
+    /*   int i=1;
+       std::ostringstream str;
+       str <<i <<".meta";
+    */
+       myfile.open (integer_string);
+       myfile << "Swaraj Writing this to a file.\n";
+       myfile.close();
+        //i++;
+    //}
         cout << "HERE!" << endl;
        }
        

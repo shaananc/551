@@ -24,12 +24,6 @@ void Connection::initializeConnection(Packet *packet) {
         init_port = tcp->source_port;
         recv_port = tcp->dest_port;
 
-        init_duplicates = 0;
-        recv_duplicates = 0;
-        bytes_recv = 0;
-        bytes_sent = 0;
-        packets_recv = 0;
-        packets_sent = 0;
 
 
     } else if ((tcp->flags & TH_SYN) && (tcp->flags & TH_ACK)) {
@@ -59,6 +53,13 @@ void Connection::initializeConnection(Packet *packet) {
 
 Connection::Connection() {
     state = INIT;
+    init_duplicates = 0;
+    recv_duplicates = 0;
+    bytes_recv = 0;
+    bytes_sent = 0;
+    packets_recv = 0;
+    packets_sent = 0;
+
 }
 
 void Connection::setId(int id_num) {
@@ -128,12 +129,11 @@ bool Connection::processPacket(Packet *packet) {
                             p++;
                             i++;
                         }
-                        recv_file << endl;
-                        //recv_file << iter->payload << endl; //PAYLOAD OF RESPONDER
+
                         recv_file.close();
 
 
-                        
+
 
                         //cout << iter->payload;
                         //std::list<TCP>::iterator rm = iter;
@@ -150,7 +150,7 @@ bool Connection::processPacket(Packet *packet) {
 
             bytes_sent += tcp->payload_size;
             packets_sent++;
-            //cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
+            cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
         } else if (ip->ip_src.s_addr == receiver.s_addr) {
             std::list<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
@@ -184,7 +184,7 @@ bool Connection::processPacket(Packet *packet) {
                             p++;
                             i++;
                         }
-                        init_file << endl;
+                        //init_file << endl;
                         init_file.close();
 
                         //std::list<TCP>::iterator rm = it;
@@ -200,7 +200,7 @@ bool Connection::processPacket(Packet *packet) {
 
             packets_recv++;
             bytes_recv += tcp->payload_size;
-            //cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
+            cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
 
 
             std::ostringstream str;
@@ -247,6 +247,7 @@ void Connection::checktermination(Packet* packet) {
         state = FIN_EST;
         force_close = true;
         cout << "Termination done" << endl;
+        deathCallback(this);
     } else {
 
         cout << "ERROR" << endl;

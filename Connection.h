@@ -59,7 +59,7 @@ protected:
     u_short init_port;
     u_short recv_port;
 
-    u_short state;
+    
 
     int packets_sent;
     int packets_recv;
@@ -87,8 +87,10 @@ public:
     IpKey getKey();
     void checktermination(Packet* packet);
     void (*deathCallback)(Connection*);
-    void Connection::writeMeta();
+    void writeMeta();
+    void forceClose();
 
+    u_short state;
 
 };
 

@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
         if (!(packet->ethernet->ether_type == PROT_IP)) {
             packet->transport_type = PROT_OTHER;
         } else {
-            
+
             packet->ip = (struct sniff_ip*) (raw_packet + SIZE_ETHERNET); /* address of ip header*/
             packet->ip_size = IP_HL(packet->ip)*4; /* size in bytes*/
 
@@ -112,8 +112,8 @@ int main(int argc, char** argv) {
                 } else {
                     tcp->valid_checksum = false;
                 }
-                
-                
+
+
                 // perform additional logic
                 if (FLAG && strcmp("-t", FLAG) == 0) {
                     process_tcp(packet);
@@ -174,11 +174,21 @@ void process_tcp(Packet *packet) {
         c.deathCallback = &connection_died;
         c.setKey(key);
         c.setId(num_connections);
-        c.processPacket(packet); 
-        
+        c.processPacket(packet);
+
         connections.insert(make_pair(key, c));
         num_connections++;
     } else {
+        if ((((TCP *) packet->transport)->flags & TH_SYN) && conn->second.state >= Connection::EST) {
+            conn->second.forceClose();
+            Connection c;
+            c.deathCallback = &connection_died;
+            c.setKey(key);
+            c.setId(num_connections);
+            c.processPacket(packet);
+            conn->second = c;
+        }
+
         conn->second.processPacket(packet);
     }
 
@@ -192,11 +202,11 @@ void connection_died(Connection *c) {
 }
 
 void cleanup_connections() {
-      map<IpKey, Connection> ::iterator conn;
-      for(conn = connections.begin(); conn != connections.end(); conn++){
-          
-          //conn->second.write_meta();
-      }
+    map<IpKey, Connection> ::iterator conn;
+    for (conn = connections.begin(); conn != connections.end(); conn++) {
+
+        //conn->second.write_meta();
+    }
 
 
 }

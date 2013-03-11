@@ -254,3 +254,10 @@ void Connection::setKey(IpKey key) {
 IpKey Connection::getKey() {
     return this->key;
 }
+
+
+void Connection::forceClose(){
+    force_close = true;
+    this->writeMeta();
+    
+}

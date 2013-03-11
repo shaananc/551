@@ -21,9 +21,10 @@ void Connection::initializeConnection(Packet *packet) {
         state = SYN_SENT;
         initiator = ip->ip_src;
         receiver = ip->ip_dst;
-        init_port = tcp->source_port;
-        recv_port = tcp->dest_port;
-
+        this->init_port = tcp->source_port;
+        this->recv_port = tcp->dest_port;
+        cout << tcp->source_port << endl;
+        cout << tcp->dest_port << endl;
 
 
     } else if ((tcp->flags & TH_SYN) && (tcp->flags & TH_ACK)) {
@@ -32,8 +33,8 @@ void Connection::initializeConnection(Packet *packet) {
         //cout << "The current state is " << state << endl;
         initiator = ip->ip_dst;
         receiver = ip->ip_src;
-        init_port = tcp->dest_port;
-        recv_port = tcp->source_port;
+        //init_port = tcp->dest_port;
+        //recv_port = tcp->source_port;
 
     } else if ((state == SYN_REC)&&(tcp->flags & TH_RST))//added case for RST
     {
@@ -79,11 +80,18 @@ void Connection::writeMeta() {
     inet_ntop(AF_INET, &initiator, source_addr, INET_ADDRSTRLEN);
     inet_ntop(AF_INET, &receiver, dest_addr, INET_ADDRSTRLEN);
 
-    printf("%s %s",source_addr,dest_addr);
-    cout << init_port << " " << recv_port << endl;
-    cout << packets_sent << " " << packets_recv << endl;
-    cout << init_duplicates << " " << recv_duplicates << endl;
-    cout << force_close << " " << endl;
+//    printf("%s %s\n",source_addr,dest_addr);
+//    cout << init_port << " " << recv_port << endl;
+//    cout << packets_sent << " " << packets_recv << endl;
+//    cout << init_duplicates << " " << recv_duplicates << endl;
+//    cout << force_close << " " << endl;
+    
+    recv_file << source_addr << " " << dest_addr;
+    recv_file << init_port << " " << recv_port << endl;
+    recv_file << packets_sent << " " << packets_recv << endl;
+    recv_file << init_duplicates << " " << recv_duplicates << endl;
+    recv_file << force_close << " " << endl;
+
 
 
     recv_file.close();
@@ -224,6 +232,7 @@ void Connection::checktermination(Packet* packet) {
         state = FIN_EST;
         force_close = true;
         cout << "Termination done" << endl;
+        writeMeta();
         deathCallback(this);
     } else {
 
@@ -252,6 +261,7 @@ IpKey Connection::getKey() {
 
 void Connection::forceClose() {
     force_close = true;
+    cout << "force close" << endl;
     this->writeMeta();
 
 }

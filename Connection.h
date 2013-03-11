@@ -56,8 +56,8 @@ protected:
     // the once who sent the syn
     struct in_addr initiator;
     struct in_addr receiver;
-    u_short init_port;
-    u_short recv_port;
+    int init_port;
+    int recv_port;
 
     
 

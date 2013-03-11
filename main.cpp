@@ -104,6 +104,8 @@ int main(int argc, char** argv) {
                 tcp->seq = raw_tcp->th_seq; /* tcp sequence number*/
                 tcp->ack = raw_tcp->th_ack; /* tcp ACK number */
                 tcp->checksum = ntohs(raw_tcp->th_sum); /* checksum value in the packet*/
+                tcp->source_port = ntohs(raw_tcp->th_sport);
+                tcp->dest_port = ntohs(raw_tcp->th_dport);
                 int comp_value = ((unsigned short) tcp_checksum((unsigned short) (tcp->header_size), (unsigned short *) &packet->ip->ip_src, (unsigned short *) &packet->ip->ip_dst, raw_tcp, tcp->payload, tcp->payload_size));
 
                 if (ntohs(raw_tcp->th_sum) == ntohs(comp_value)) { /* check validity of checksum*/

@@ -38,14 +38,14 @@ void Connection::initializeConnection(Packet *packet) {
 
     } else if ((state == SYN_REC)&&(tcp->flags & TH_RST))//added case for RST
     {
-      
+
         state = INIT;
         cout << "RST SENT" << endl;
     } else if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->flags & TH_ACK)) {
         state = EST;
         cout << "Established." << endl;
         packets_sent++;
-        
+
     } else {
 
         cout << "ERROR" << endl;
@@ -81,12 +81,6 @@ void Connection::writeMeta() {
     inet_ntop(AF_INET, &initiator, source_addr, INET_ADDRSTRLEN);
     inet_ntop(AF_INET, &receiver, dest_addr, INET_ADDRSTRLEN);
 
-//    printf("%s %s\n",source_addr,dest_addr);
-//    cout << init_port << " " << recv_port << endl;
-//    cout << packets_sent << " " << packets_recv << endl;
-//    cout << init_duplicates << " " << recv_duplicates << endl;
-//    cout << force_close << " " << endl;
-    
     recv_file << source_addr << " " << dest_addr << endl;
     recv_file << init_port << " " << recv_port << endl;
     recv_file << packets_sent << " " << packets_recv << endl;
@@ -151,14 +145,15 @@ bool Connection::processPacket(Packet *packet) {
                         recv_file.close();
                         iter = recv_buf.erase(iter);
 
+                        bytes_sent += tcp->payload_size;
+                        packets_sent++;
+
                     }
                 }
             }
 
 
 
-            bytes_sent += tcp->payload_size;
-            packets_sent++;
             //cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
         } else if (ip->ip_src.s_addr == receiver.s_addr) {
             std::list<TCP>::iterator iter;
@@ -197,14 +192,17 @@ bool Connection::processPacket(Packet *packet) {
                         init_file.close();
                         it = init_buf.erase(it);
 
+                        packets_recv++;
+                        bytes_recv += tcp->payload_size;
+                        //cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
+
+
+
                     }
                 }
             }
 
 
-            packets_recv++;
-            bytes_recv += tcp->payload_size;
-            //cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
 
         }
 
@@ -267,5 +265,5 @@ void Connection::forceClose() {
     force_close = true;
     cout << "force close" << endl;
     this->writeMeta();
-    
+
 }

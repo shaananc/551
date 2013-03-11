@@ -23,7 +23,7 @@ void Connection::initializeConnection(Packet *packet) {
         receiver = ip->ip_dst;
         init_port = tcp->source_port;
         recv_port = tcp->dest_port;
-
+        packets_sent++;
 
 
     } else if ((tcp->flags & TH_SYN) && (tcp->flags & TH_ACK)) {
@@ -34,16 +34,18 @@ void Connection::initializeConnection(Packet *packet) {
         receiver = ip->ip_src;
         init_port = tcp->dest_port;
         recv_port = tcp->source_port;
+        packets_recv++;
 
     } else if ((state == SYN_REC)&&(tcp->flags & TH_RST))//added case for RST
     {
-
+      
         state = INIT;
         cout << "RST SENT" << endl;
     } else if (((state == SYN_REC) || (state == SYN_SENT)) && (tcp->flags & TH_ACK)) {
         state = EST;
         cout << "Established." << endl;
-
+        packets_sent++;
+        
     } else {
 
         cout << "ERROR" << endl;

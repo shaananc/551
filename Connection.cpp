@@ -120,6 +120,7 @@ bool Connection::processPacket(Packet *packet) {
             for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
                 if (it->seq == tcp->seq) {// && (it->payload_size <= tcp->payload_size)){
                     duplicate_exists = 1;
+                    init_duplicates++;
                 }
             }
 
@@ -164,6 +165,7 @@ bool Connection::processPacket(Packet *packet) {
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
                 if (iter->seq == tcp->seq) { //&& (iter->payload_size <= tcp->payload_size)){
                     duplicate_exists = 1;
+                    recv_duplicates++;
                 }
             }
 

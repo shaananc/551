@@ -90,6 +90,7 @@ void Connection::writeMeta() {
     recv_file << source_addr << " " << dest_addr << endl;
     recv_file << init_port << " " << recv_port << endl;
     recv_file << packets_sent << " " << packets_recv << endl;
+    recv_file << bytes_sent << " " << bytes_recv << endl;
     recv_file << init_duplicates << " " << recv_duplicates << endl;
     recv_file << force_close << " " << endl;
 

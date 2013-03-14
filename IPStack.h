@@ -16,6 +16,8 @@
 void addrToString(u_char *ptr, char *buf);
 u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[], unsigned short dest_addr[], struct sniff_tcp* tcp, u_char *payload, int size);
 
+
+
 // Higher Layers
 
 typedef u_char* Payload;
@@ -69,6 +71,7 @@ public:
 
     void PrintPacket();
 };
+
 
 #endif	/* TRANSPORTPROTOCOL_H */
 

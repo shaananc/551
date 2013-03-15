@@ -54,8 +54,10 @@ public:
 private:
 
     void setState(u_short state);
-    std::list<TCP> init_buf; //buffer for initiator
-    std::list<TCP> recv_buf; //buffer for receiver
+    std::vector<TCP> init_buf; //buffer for initiator
+    std::vector<TCP> recv_buf; //buffer for receiver
+    std::vector<std::string> clientData;
+    std::vector<std::string> serverData;
 
 protected:
 
@@ -80,8 +82,8 @@ protected:
     u_int id_num;
 
     // Contains an array of pointers to the raw packet data
-    std::queue <Payload> serverData;
-    std::queue <Payload> clientData;
+    //std::queue <Payload> serverData;
+    //std::queue <Payload> clientData;
 
 public:
 
@@ -94,6 +96,7 @@ public:
     IpKey getKey();
     void checktermination(std::auto_ptr<Packet> packet);
     void (*deathCallback)(TCPConnection*);
+    void tcpFlow();
     void writeMeta();
     void forceClose();
 

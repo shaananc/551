@@ -149,8 +149,8 @@ void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp *raw_tcp) {
     tcp->payload_size = ntohs(packet->ip->ip_len) - packet->ip_size - tcp->header_size; /* size of payload */
     tcp->payload = (Payload) (raw_tcp + packet->transport->header_size); /* address of payload*/
     tcp->flags = raw_tcp->th_flags;
-    tcp->seq = raw_tcp->th_seq; /* tcp sequence number*/
-    tcp->ack = raw_tcp->th_ack; /* tcp ACK number */
+    tcp->seq = ntohl(raw_tcp->th_seq); /* tcp sequence number*/
+    tcp->ack = ntohl(raw_tcp->th_ack); /* tcp ACK number */
     tcp->checksum = ntohs(raw_tcp->th_sum); /* checksum value in the packet*/
     tcp->source_port = ntohs(raw_tcp->th_sport);
     tcp->dest_port = ntohs(raw_tcp->th_dport);
@@ -235,6 +235,7 @@ void connection_died(TCPConnection *c) {
 void cleanup_connections() {
     map<IpKey, TCPConnection> ::iterator conn;
     for (conn = connections.begin(); conn != connections.end(); conn++) {
+        conn->second.tcpFlow();
         conn->second.forceClose();
     }
 

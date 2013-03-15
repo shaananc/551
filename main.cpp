@@ -165,7 +165,7 @@ void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp *raw_tcp) {
 
 
     // perform additional logic
-    if (FLAG && strcmp("-t", FLAG) == 0) {
+    if (FLAG && (strcmp("-t", FLAG) == 0 || strcmp("-m", FLAG) == 0)) {
 
         IpKey key = *(new IpKey(packet->ip, (TCP *) packet->transport));
 
@@ -173,7 +173,7 @@ void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp *raw_tcp) {
         TCPConnection c;
         if (conn == connections.end()) {
             std::cout << "New connection! " << endl;
-            
+
             c.deathCallback = &connection_died;
             c.setKey(key);
             c.setId(num_connections);
@@ -193,21 +193,25 @@ void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp *raw_tcp) {
 
             conn->second.processPacket(packet);
         }
-        map<int, NetApp*>::iterator app = applicationCallbacks.find(conn->second.recv_port);
-        // There is an application waiting
-        if (conn->second.state == TCPConnection::EST && app!=applicationCallbacks.end()){
-           
-            // Server sending
-            if (c.initiator.s_addr == packet->ip->ip_src.s_addr){
-                app->second->clientPayload(packet->transport->payload);
-            } else if (c.receiver.s_addr == packet->ip->ip_src.s_addr){
-                app->second->serverPayload(packet->transport->payload);
+
+
+        if (strcmp("-m", FLAG) == 0) {
+
+            map<int, NetApp*>::iterator app = applicationCallbacks.find(conn->second.recv_port);
+            // There is an application waiting
+            if (conn->second.state == TCPConnection::EST && app != applicationCallbacks.end()) {
+
+                // Server sending
+                if (c.initiator.s_addr == packet->ip->ip_src.s_addr) {
+                    app->second->clientPayload(packet->transport->payload);
+                } else if (c.receiver.s_addr == packet->ip->ip_src.s_addr) {
+                    app->second->serverPayload(packet->transport->payload);
+                }
             }
+
         }
 
     }
-
-
 
 
 
@@ -238,8 +242,10 @@ void cleanup_connections() {
 }
 
 void register_applications() {
-    NetApp *smtp = (NetApp *) new SMTPProtocol();
-    applicationCallbacks.insert(make_pair(25,smtp));
-    applicationCallbacks.insert(make_pair(587,smtp));
-    applicationCallbacks.insert(make_pair(465,smtp));
+    NetApp *smtp25 = (NetApp *) new SMTPProtocol();
+    applicationCallbacks.insert(make_pair(25, smtp25));
+    NetApp *smtp587 = (NetApp *) new SMTPProtocol();
+    applicationCallbacks.insert(make_pair(587, smtp587));
+    NetApp *smtp465 = (NetApp *) new SMTPProtocol();
+    applicationCallbacks.insert(make_pair(465, smtp465));
 }

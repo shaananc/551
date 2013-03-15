@@ -14,19 +14,21 @@
 #include <vector>
 #include <string>
 #include <list>
+#include <queue>
+#include <memory>
 
 #include "pktstruct.h"
 #include "IpKey.h"
 
-class Connection {
+class TCPConnection {
 public:
-    Connection();
+    TCPConnection();
 
-    Connection(struct in_addr src, struct in_addr dest, u_short src_port, u_short dst_port, int hashCode, int id_num) {
+    TCPConnection(struct in_addr src, struct in_addr dest, u_short src_port, u_short dst_port, int hashCode, int id_num) {
         ;
     }
 
-    virtual ~Connection() {
+    virtual ~TCPConnection() {
     };
 
     enum StateType {
@@ -43,6 +45,12 @@ public:
         CLOSED = 10,
     };
 
+    // the once who sent the syn
+    struct in_addr initiator;
+    struct in_addr receiver;
+    int init_port;
+    int recv_port;
+
 private:
 
     void setState(u_short state);
@@ -53,13 +61,9 @@ protected:
 
     IpKey key;
 
-    // the once who sent the syn
-    struct in_addr initiator;
-    struct in_addr receiver;
-    int init_port;
-    int recv_port;
 
-    
+
+
 
     int packets_sent;
     int packets_recv;
@@ -75,18 +79,21 @@ protected:
 
     u_int id_num;
 
+    // Contains an array of pointers to the raw packet data
+    std::queue <Payload> serverData;
+    std::queue <Payload> clientData;
 
 public:
 
 
-    bool processPacket(Packet *packet);
-    void initializeConnection(Packet *packet);
+    bool processPacket(std::auto_ptr<Packet> packet);
+    void initializeConnection(std::auto_ptr<Packet> packet);
     std::string getState();
     void setId(int id_num);
     void setKey(IpKey key);
     IpKey getKey();
-    void checktermination(Packet* packet);
-    void (*deathCallback)(Connection*);
+    void checktermination(std::auto_ptr<Packet> packet);
+    void (*deathCallback)(TCPConnection*);
     void writeMeta();
     void forceClose();
 

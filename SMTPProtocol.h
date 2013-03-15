@@ -8,7 +8,12 @@
 #ifndef SMTPPROTOCOL_H
 #define	SMTPPROTOCOL_H
 
-class SMTPProtocol : public ApplicationProtocol {
+#include <string>
+#include "IPStack.h"
+
+using namespace std;
+
+class SMTPProtocol : public NetApp {
 public:
     SMTPProtocol();
     SMTPProtocol(const SMTPProtocol& orig);
@@ -16,17 +21,28 @@ public:
     
     // SMTP States
       enum StateType {
+          INIT = 0,
+          BEGIN = 2,
+          ECREAT = 3,
+          RECP_SET = 4,
+          WRITE = 5,
+          DELV = 6
     
     };
+    
+    string message;
+    int state;
     
 private:
     void outputMeta();
 
 
 public:
-    void processPayload(u_char *payload);
-    
 
+    
+    void parseEmail(string email);
+    virtual void clientPayload(Payload payload);
+    virtual void serverPayload(Payload payload);
 };
 
 #endif	/* SMTPPROTOCOL_H */

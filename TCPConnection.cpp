@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Connection.h"
+#include "TCPConnection.h"
 #include "IpKey.h"
 #include <string.h> 
 #include <stdio.h>
@@ -10,7 +10,7 @@ using namespace std;
 #define SIZE_ETHERNET 14
 #define MAC_STRING_SIZE 19
 
-void Connection::initializeConnection(Packet *packet) {
+void TCPConnection::initializeConnection(std::auto_ptr<Packet> packet) {
     // First step - check if SYN or SYN-ACK
     // All these lines should check sequence numbers on the ACK
     TCP *tcp = (TCP *) packet->transport;
@@ -53,7 +53,7 @@ void Connection::initializeConnection(Packet *packet) {
 
 }
 
-Connection::Connection() {
+TCPConnection::TCPConnection() {
     state = INIT;
     init_duplicates = 0;
     recv_duplicates = 0;
@@ -64,11 +64,11 @@ Connection::Connection() {
     force_close = false;
 }
 
-void Connection::setId(int id_num) {
+void TCPConnection::setId(int id_num) {
     this->id_num = id_num;
 }
 
-void Connection::writeMeta() {
+void TCPConnection::writeMeta() {
 
     std::ostringstream filename;
     filename.str("");
@@ -94,7 +94,7 @@ void Connection::writeMeta() {
 
 }
 
-bool Connection::processPacket(Packet *packet) {
+bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
     TCP *tcp = (TCP *) packet->transport;
     struct sniff_ip *ip = packet->ip;
     int duplicate_exists;
@@ -141,6 +141,8 @@ bool Connection::processPacket(Packet *packet) {
                             p++;
                             i++;
                         }
+                        
+                        serverData.push(tcp->payload);
 
                         recv_file.close();
                         iter = recv_buf.erase(iter);
@@ -192,6 +194,8 @@ bool Connection::processPacket(Packet *packet) {
                         init_file.close();
                         it = init_buf.erase(it);
 
+                        clientData.push(tcp->payload);
+                        
                         packets_recv++;
                         bytes_recv += tcp->payload_size;
                         //cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
@@ -220,7 +224,7 @@ bool Connection::processPacket(Packet *packet) {
 
 }
 
-void Connection::checktermination(Packet* packet) {
+void TCPConnection::checktermination(std::auto_ptr<Packet> packet) {
     TCP* tcp = (TCP*) (packet->transport);
     if (((state == EST)&&(tcp->flags & TH_FIN)) || ((state == EST)&&(tcp->flags & TH_FIN)&&(tcp->flags & TH_ACK))) {
         //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination
@@ -243,7 +247,7 @@ void Connection::checktermination(Packet* packet) {
 
 }
 
-string Connection::getState() {
+string TCPConnection::getState() {
     switch (state) {
         case SYN_REC: return "SYN RECEIVED";
         case SYN_SENT: return "SYN SENT";
@@ -253,15 +257,15 @@ string Connection::getState() {
     return NULL;
 }
 
-void Connection::setKey(IpKey key) {
+void TCPConnection::setKey(IpKey key) {
     this->key = key;
 }
 
-IpKey Connection::getKey() {
+IpKey TCPConnection::getKey() {
     return this->key;
 }
 
-void Connection::forceClose() {
+void TCPConnection::forceClose() {
     force_close = true;
     cout << "force close" << endl;
     this->writeMeta();

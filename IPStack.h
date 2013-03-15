@@ -23,6 +23,15 @@ u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[], unsigned
 typedef u_char* Payload;
 
 
+//Application protocol
+
+class NetApp {
+public:
+    // Need both because we are reading both data sent and received
+    virtual void serverPayload(Payload payload);
+    virtual void clientPayload(Payload payload);
+};
+
 // Layer 4
 
 class TransportProtocol {
@@ -46,7 +55,7 @@ public:
     u_char flags;
     tcp_seq seq;
     tcp_seq ack;
-	int ack_complete;
+    int ack_complete;
 
 };
 

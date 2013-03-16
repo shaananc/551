@@ -10,6 +10,8 @@
 
 #include "pktstruct.h"
 #include <arpa/inet.h>
+#include <string> 
+#include <stdio.h>
 
 #define PROT_OTHER 0
 
@@ -56,6 +58,8 @@ public:
     tcp_seq seq;
     tcp_seq ack;
     int ack_complete;
+    std::string pload;
+    bool operator<(const TCP &rhs) const { return seq < rhs.seq; }
 
 };
 

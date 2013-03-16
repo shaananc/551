@@ -55,8 +55,8 @@ public:
     bool valid_checksum;
     int checksum;
     u_char flags;
-    tcp_seq seq;
-    tcp_seq ack;
+    uint32_t seq;
+    uint32_t ack;
     int ack_complete;
     std::string pload;
     bool operator<(const TCP &rhs) const { return seq < rhs.seq; }

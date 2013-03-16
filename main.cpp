@@ -231,6 +231,7 @@ void connection_died(TCPConnection *c) {
 void cleanup_connections() {
     map<IpKey, TCPConnection> ::iterator conn;
     for (conn = connections.begin(); conn != connections.end(); conn++) {
+        conn->second.tcpFlow();
         conn->second.forceClose();
     }
 

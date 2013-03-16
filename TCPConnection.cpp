@@ -249,7 +249,6 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
           
 
             for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
-                //cout << it->payload;
                 if (it->seq < tcp->ack) {
                     if (it->ack_complete != 1) {
                         it->ack_complete = 1;

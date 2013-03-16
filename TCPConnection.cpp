@@ -80,14 +80,6 @@ void TCPConnection::tcpFlow(){
 		}
 	}
 	
-	//TCP back = init_buf.back();
-	
-	//uint32_t diff = (back.seq - initial_sequence);
-	
-	
-	//uint32_t prev = initial_sequence;
-	
-	
 	for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
 		std::vector<TCP>::iterator nit = it;
 		++nit;

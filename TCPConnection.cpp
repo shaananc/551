@@ -166,19 +166,19 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
 
             if (duplicate_exists == 0) {
                 TCP t;
-    			t.seq = tcp->seq;
-				t.payload_size = tcp->payload_size;
-				std::stringstream s;
-				int i = 0;
-				u_char *c = tcp->payload;
-				while (*c && i < tcp->payload_size) {
-					s << *c;
-					c++;
-					i++;
-				}
-				std::string cstring = s.str();
+    		t.seq = tcp->seq;
+		t.payload_size = tcp->payload_size;
+		std::stringstream s;
+		int i = 0;
+		u_char *c = tcp->payload;
+		while (*c && i < tcp->payload_size) {
+		  s << *c;
+		  c++;
+	          i++;
+		}
+		std::string cstring = s.str();
 				
-				t.pload = cstring;
+		t.pload = cstring;
 				
                 init_buf.push_back(t);
             }
@@ -230,19 +230,19 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
 
             if (duplicate_exists == 0) {
                 TCP t;
-    			t.seq = tcp->seq;
-				t.payload_size = tcp->payload_size;
-				std::stringstream s;
-				int i = 0;
-				u_char *c = tcp->payload;
-				while (*c && i < tcp->payload_size) {
-					s << *c;
-					c++;
-					i++;
-				}
-				std::string cstring = s.str();
+    		t.seq = tcp->seq;
+		t.payload_size = tcp->payload_size;
+		std::stringstream s;
+		int i = 0;
+		u_char *c = tcp->payload;
+		while (*c && i < tcp->payload_size) {
+		  s << *c;
+		  c++;
+		  i++;
+		}
+		std::string cstring = s.str();
 				
-				t.pload = cstring;
+		t.pload = cstring;
 				
                 recv_buf.push_back(t);
             }

@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <fstream>
 #include <sstream>
+#include <cctype>
+#include <algorithm>
 
 using namespace std;
 #define SIZE_ETHERNET 14
@@ -68,6 +70,64 @@ void TCPConnection::setId(int id_num) {
     this->id_num = id_num;
 }
 
+void TCPConnection::tcpFlow(){
+    
+    /* Reconstruction of TCP flow from the client side*/
+	std::sort(init_buf.begin(), init_buf.end());
+	for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
+		if(it->ack_complete != 1){
+			init_buf.erase(it);
+		}
+	}
+	
+	//TCP back = init_buf.back();
+	
+	//uint32_t diff = (back.seq - initial_sequence);
+	
+	
+	//uint32_t prev = initial_sequence;
+	
+	
+	for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
+		std::vector<TCP>::iterator nit = it;
+		++nit;
+		uint32_t next = nit->seq;
+		uint32_t i = next - it->seq;
+		
+		
+		std::string in = it->pload.substr(0, i);
+		
+		clientData.push_back(in);
+		
+		
+	}
+	
+    /* Reconstruction of TCP flow from the server side*/
+	std::sort(recv_buf.begin(), recv_buf.end());
+	for (std::vector<TCP>::iterator it = recv_buf.begin(); it != recv_buf.end(); it++) {
+		if(it->ack_complete != 1){
+			recv_buf.erase(it);
+		}
+	}
+	
+	
+	for (std::vector<TCP>::iterator it = recv_buf.begin(); it != recv_buf.end(); it++) {
+		std::vector<TCP>::iterator nit = it;
+		++nit;
+		uint32_t next = nit->seq;
+		uint32_t i = next - it->seq;
+		
+		
+		std::string in = it->pload.substr(0, i);
+		
+		serverData.push_back(in);
+		
+		
+	}
+	
+}
+
+
 void TCPConnection::writeMeta() {
 
     std::ostringstream filename;
@@ -111,7 +171,7 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
         if (ip->ip_src.s_addr == initiator.s_addr) {
             duplicate_exists = 0;
 
-            for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
+            for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
                 if (it->seq == tcp->seq) {// && (it->payload_size <= tcp->payload_size)){
                     duplicate_exists = 1;
                     init_duplicates++;
@@ -119,12 +179,27 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
             }
 
             if (duplicate_exists == 0) {
-                init_buf.push_back(*tcp);
+                TCP t;
+    			t.seq = tcp->seq;
+				t.payload_size = tcp->payload_size;
+				std::stringstream s;
+				int i = 0;
+				u_char *c = tcp->payload;
+				while (*c && i < tcp->payload_size) {
+					s << *c;
+					c++;
+					i++;
+				}
+				std::string cstring = s.str();
+				
+				t.pload = cstring;
+				
+                init_buf.push_back(t);
             }
 
-            std::list<TCP>::iterator iter;
+            std::vector<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
-                //cout << iter->payload;
+                
                 if (iter->seq < tcp->ack) {
                     if (iter->ack_complete != 1) {
                         iter->ack_complete = 1;
@@ -142,7 +217,7 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
                             i++;
                         }
                         
-                        serverData.push(tcp->payload);
+                        //serverData.push(tcp->payload);
 
                         recv_file.close();
                         iter = recv_buf.erase(iter);
@@ -156,9 +231,9 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
 
 
 
-            //cout << "The packets and bytes sent are " << bytes_sent << " " << packets_sent << endl;
+        
         } else if (ip->ip_src.s_addr == receiver.s_addr) {
-            std::list<TCP>::iterator iter;
+            std::vector<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
                 if (iter->seq == tcp->seq) { //&& (iter->payload_size <= tcp->payload_size)){
                     duplicate_exists = 1;
@@ -168,12 +243,26 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
 
 
             if (duplicate_exists == 0) {
-
-                recv_buf.push_back(*tcp);
+                TCP t;
+    			t.seq = tcp->seq;
+				t.payload_size = tcp->payload_size;
+				std::stringstream s;
+				int i = 0;
+				u_char *c = tcp->payload;
+				while (*c && i < tcp->payload_size) {
+					s << *c;
+					c++;
+					i++;
+				}
+				std::string cstring = s.str();
+				
+				t.pload = cstring;
+				
+                recv_buf.push_back(t);
             }
-            //cout << tcp->payload;
+          
 
-            for (std::list<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
+            for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
                 //cout << it->payload;
                 if (it->seq < tcp->ack) {
                     if (it->ack_complete != 1) {
@@ -183,7 +272,7 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
                         filename << id_num << ".initiator";
                         std::ofstream init_file;
                         init_file.open(filename.str().c_str(), ios::app);
-                        //cout << "PAYLOAD"  << tcp->payload << endl;
+                        
                         u_char *p = tcp->payload;
                         int i = 0;
                         while (*p && i < tcp->payload_size) {
@@ -194,11 +283,11 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
                         init_file.close();
                         it = init_buf.erase(it);
 
-                        clientData.push(tcp->payload);
+                        //clientData.push(tcp->payload);
                         
                         packets_recv++;
                         bytes_recv += tcp->payload_size;
-                        //cout << "The packets and bytes received are " << bytes_recv << " " << packets_recv << endl;
+                       
 
 
 
@@ -238,6 +327,7 @@ void TCPConnection::checktermination(std::auto_ptr<Packet> packet) {
         state = FIN_EST;
         force_close = true;
         cout << "Termination done" << endl;
+        tcpFlow();
         writeMeta();
         deathCallback(this);
     } else {
@@ -268,6 +358,7 @@ IpKey TCPConnection::getKey() {
 void TCPConnection::forceClose() {
     force_close = true;
     cout << "force close" << endl;
+    this->tcpFlow();
     this->writeMeta();
 
 }

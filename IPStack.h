@@ -29,12 +29,10 @@ typedef u_char* Payload;
 
 class NetApp {
 public:
-    NetApp();
 
-    virtual ~NetApp();
     // Need both because we are reading both data sent and received
-    virtual void serverPayload(Payload payload);
-    virtual void clientPayload(Payload payload);
+    virtual void serverPayload(Payload payload){}
+    virtual void clientPayload(Payload payload){}
 };
 
 // Layer 4

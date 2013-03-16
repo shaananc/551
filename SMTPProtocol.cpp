@@ -7,14 +7,8 @@
 
 #include "SMTPProtocol.h"
 
-SMTPProtocol::SMTPProtocol() {
-}
 
-SMTPProtocol::SMTPProtocol(const SMTPProtocol& orig) {
-}
 
-SMTPProtocol::~SMTPProtocol() {
-}
 
 // Takes payload sent TO server
 // Dumps the actual message to 'message' and then calls parseEmail

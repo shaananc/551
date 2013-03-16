@@ -15,9 +15,11 @@ using namespace std;
 
 class SMTPProtocol : public NetApp {
 public:
-    SMTPProtocol();
-    SMTPProtocol(const SMTPProtocol& orig);
-    virtual ~SMTPProtocol();
+    SMTPProtocol(){
+        
+    }
+    
+    virtual ~SMTPProtocol(){}
     
     // SMTP States
       enum StateType {

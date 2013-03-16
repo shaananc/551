@@ -8,7 +8,7 @@ EXECUTABLE=packetparse
 all: $(SOURCES) $(EXECUTABLE)
 	
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -lpcap -o $@
+	$(CC) $(LDFLAGS) $(OBJECTS) -std=c++11 -lpcap -o $@
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

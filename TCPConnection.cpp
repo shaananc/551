@@ -76,7 +76,7 @@ void TCPConnection::tcpFlow(){
 	std::sort(init_buf.begin(), init_buf.end());
 	for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
 		if(it->ack_complete != 1){
-			init_buf.erase(it);
+		   init_buf.erase(it);
 		}
 	}
 	
@@ -86,19 +86,16 @@ void TCPConnection::tcpFlow(){
 		uint32_t next = nit->seq;
 		uint32_t i = next - it->seq;
 		
-		
 		std::string in = it->pload.substr(0, i);
 		
-		clientData.push_back(in);
-		
-		
+		clientData.push_back(in);	
 	}
 	
     /* Reconstruction of TCP flow from the server side*/
 	std::sort(recv_buf.begin(), recv_buf.end());
 	for (std::vector<TCP>::iterator it = recv_buf.begin(); it != recv_buf.end(); it++) {
 		if(it->ack_complete != 1){
-			recv_buf.erase(it);
+		   recv_buf.erase(it);
 		}
 	}
 	
@@ -109,12 +106,9 @@ void TCPConnection::tcpFlow(){
 		uint32_t next = nit->seq;
 		uint32_t i = next - it->seq;
 		
-		
 		std::string in = it->pload.substr(0, i);
 		
-		serverData.push_back(in);
-		
-		
+		serverData.push_back(in);	
 	}
 	
 }

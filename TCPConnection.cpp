@@ -206,7 +206,7 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
                         //serverData.push(tcp->payload);
 
                         recv_file.close();
-                        iter = recv_buf.erase(iter);
+                        //iter = recv_buf.erase(iter);
 
                         bytes_sent += tcp->payload_size;
                         packets_sent++;
@@ -266,7 +266,7 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
                             i++;
                         }
                         init_file.close();
-                        it = init_buf.erase(it);
+                        //it = init_buf.erase(it);
 
                         //clientData.push(tcp->payload);
                         

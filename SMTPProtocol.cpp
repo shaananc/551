@@ -73,31 +73,31 @@ boost::split( fields, email, boost::is_any_of( "\n" ) );
 if(fields[0].find(goAheadField)!=std::string::npos)
 {
  // cout<<fields[0]<<endl;
-  split(sendorVector,fields[1],is_any_of( "Reply-To" ));
+  split(sendorVector,fields[1],is_any_of( ":" ));
 
   cout<<"We are replying to "<<sendorVector[1]<<endl;
   
-  split(fromVector,fields[2],is_any_of("From:"));
+  split(fromVector,fields[2],is_any_of(":"));
  
   cout<<"The mail is from "<<fromVector[1]<<endl;
 
-  split(receiveVector,fields[3],is_any_of("To:"));
+  split(receiveVector,fields[3],is_any_of(":"));
 
   cout<<"The mail is directed towards"<<receiveVector[1]<<endl;
 
-  split(subjectVector,fields[4],is_any_of("Subject:"));
+  split(subjectVector,fields[4],is_any_of(":"));
   
   cout<<"The subject is"<<subjectVector[1]<<endl; 
 
-  split(dateVector,fields[5],is_any_of("Date:"));
+  split(dateVector,fields[5],is_any_of(":"));
 
   cout<<"The date of email is"<<dateVector[1]<<endl;
     
-  split(mimeversionVector,fields[6],is_any_of("MIME-Version:"));
+  split(mimeversionVector,fields[6],is_any_of(":"));
 
   cout<<"The Mime Version of email is"<<mimeversionVector[1]<<endl;
 
-  split(contenttypeVector,fields[7],is_any_of("Content-Type:"));
+  split(contenttypeVector,fields[7],is_any_of(":"));
 
   cout<<"The Content Type of email is"<<contenttypeVector[1]<<endl;
 

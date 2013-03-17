@@ -10,6 +10,10 @@
 
 #include <string>
 #include "IPStack.h"
+#include <boost/algorithm/string.hpp>
+#include <iostream>
+//#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -41,7 +45,7 @@ private:
 
 public:
 
-    
+//    void print(std::vector<string>&v); 
     void parseEmail(string email);
     virtual void clientPayload(Payload payload);
     virtual void serverPayload(Payload payload);

@@ -18,7 +18,35 @@
 using namespace boost;
 
 void SMTPProtocol::serverPayload(Payload payload) {
-    string str((const char*) payload);
+    
+string str((const char*) payload);
+//unsigned foundInit;
+if((str.find("HELO")||str.find("EHLO"))!=std::string::npos)
+{
+state = INIT;
+}
+else if(str.find("MAIL FROM")!=std::string::npos && state ==BEGIN)
+{
+state = ECREAT;
+}
+else if(str.find("RCPT TO")!=std::string::npos && state == ECREAT)
+{
+state = RECP_SET;
+}
+else if(str.find("DATA")!=std::string::npos && state == RECP_SET)
+{
+state = WRITE;
+}
+else if(str.find("RSET")!=std::string::npos)
+{
+state = INIT;
+}
+
+
+
+/*
+
+string str((const char*) payload);
     if ((str.compare(0, 3, "HELO") == 0 || str.compare(0, 3, "EHLO")) && state == INIT) {
         state = INIT;
     } else if (str.compare(0, 8, "MAIL FROM") == 0 && state == BEGIN) {
@@ -31,6 +59,7 @@ void SMTPProtocol::serverPayload(Payload payload) {
         state = INIT;
 
     }
+*/
 }
 
 // Takes payload sent TO client
@@ -54,7 +83,9 @@ std::vector<string>subjectVector;
 std::vector<string>dateVector;
 std::vector<string>mimeversionVector;
 std::vector<string>contenttypeVector;
-
+std::vector<string>xmailerVector;
+std::vector<string>threadIndexVector;
+std::vector<string>xmimeOleVector;
 //string str = string(const char*)(payload);
 
 
@@ -101,6 +132,17 @@ if(fields[0].find(goAheadField)!=std::string::npos)
 
   cout<<"The Content Type of email is"<<contenttypeVector[1]<<endl;
 
+  split(xmailerVector,fields[9],is_any_of(":"));
+
+  cout<<"The X-Mailer Type of email is"<<xmailerVector[1]<<endl;
+
+  split(threadIndexVector,fields[10],is_any_of(":"));
+
+  cout<<"The Thread Index of email is"<<threadIndexVector[1]<<endl;
+  
+  split(xmimeOleVector,fields[11],is_any_of(":"));
+
+  cout<<"The xmimeOle Type of email is"<<xmimeOleVector[1]<<endl;
 
   //cout << fields[ n ] << endl;
   //cout << endl;

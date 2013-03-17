@@ -37,7 +37,7 @@ public:
     };
     
     string message;
-    int state;
+    StateType state;
     
 private:
     void outputMeta();

@@ -46,7 +46,7 @@ map<IpKey, TCPConnection> connections;
 map<int, NetApp* > applicationCallbacks;
 
 void print_total_count(int num_total_packets, int num_tpackets, int num_upackets, int num_opackets);
-void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp* raw_tcp);
+void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp* raw_tcp, u_char *raw_packet);
 void process_udp(auto_ptr<Packet> packet, struct sniff_udp* raw_udp);
 void cleanup_connections();
 void register_applications();
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
                 packet->transport_type = PROT_TCP;
                 packet->transport = new TCP();
                 struct sniff_tcp *raw_tcp = (struct sniff_tcp*) (raw_packet + SIZE_ETHERNET + packet->ip_size); /* address of tcp header located after ip header*/
-                process_tcp(packet, raw_tcp);
+                process_tcp(packet, raw_tcp, raw_packet);
 
             } else if (packet->transport_type == PROT_UDP) { /* udp packet*/
                 num_upackets++;
@@ -141,13 +141,13 @@ void print_total_count(int num_total_packets, int num_tpackets, int num_upackets
     }
 }
 
-void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp *raw_tcp) {
+void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp *raw_tcp, u_char *raw_packet) {
 
 
     TCP *tcp = (TCP *) packet->transport;
     tcp->header_size = TH_OFF(raw_tcp)*4; /* tcp size in bytes*/
     tcp->payload_size = ntohs(packet->ip->ip_len) - packet->ip_size - tcp->header_size; /* size of payload */
-    tcp->payload = (Payload) (raw_tcp + packet->transport->header_size); /* address of payload*/
+    tcp->payload = (Payload) (raw_packet + SIZE_ETHERNET + packet->ip_size + packet->transport->header_size); /* address of payload*/
     tcp->flags = raw_tcp->th_flags;
     tcp->seq = ntohl(raw_tcp->th_seq); /* tcp sequence number*/
     tcp->ack = ntohl(raw_tcp->th_ack); /* tcp ACK number */

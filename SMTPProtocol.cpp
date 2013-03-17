@@ -66,8 +66,8 @@ std::vector<string>contenttypeVector;
 
 boost::split( fields, email, boost::is_any_of( "\n" ) );
 
- for (size_t n = 0; n < fields.size(); n++)
-{
+// for (size_t n = 0; n < fields.size(); n++)
+//{
   //boost::split(
   std::string goAheadField("go ahead");
 if(fields[0].find(goAheadField)!=std::string::npos)
@@ -102,14 +102,14 @@ if(fields[0].find(goAheadField)!=std::string::npos)
   cout<<"The Content Type of email is"<<contenttypeVector[1]<<endl;
 
 
-  cout << fields[ n ] << endl;
+  //cout << fields[ n ] << endl;
   //cout << endl;
 }
 else{
 cout<<"There's some problem"<<endl;
 }
 
-}
+//}
 }
 else{
 cout<< "There no payload attached to it";

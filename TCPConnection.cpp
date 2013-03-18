@@ -1,5 +1,6 @@
 #include <iostream>
 #include "TCPConnection.h"
+#include "SMTPProtocol.h"
 #include "IpKey.h"
 #include <string.h> 
 #include <stdio.h>
@@ -118,6 +119,9 @@ void TCPConnection::tcpFlow(){
 		serverData.push_back(in);	
 	}
 	
+	SMTPProtocol smtp;
+	smtp.clientPayload(clientData);
+	//smtp.serverPayload(serverData);
 }
 
 

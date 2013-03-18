@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <sstream>
 
 
 // Takes payload sent TO server
@@ -64,18 +65,26 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData) {
     std::vector<std::string>::iterator itr;
     for (itr = clientData.begin(); itr != clientData.end(); itr++) {
         
-        if (itr->find("DATA") != string::npos && inMail == false) {
+        if (((*itr).compare("DATA\r\n") == 0) && (inMail == false)) {
             init_strings.push_back(cur_init);
             inMail = true;
             cur_init.clear();
         } else if (inMail == true){
-            cur_email.append(*itr);
-            if(itr->find("\r\n.\r\n") != string::npos){
-                inMail = false;
-                emails.push_back(cur_email);
-                //cout << "END MAIL\n";
-                cur_email.clear();
-            }
+            std::stringstream ss(*itr);
+    		std::string temp;
+			/*Check each line within packet for "." to indicate end of email. 
+			There is some other junk in the packet from IMF protocol. */
+			while(std::getline(ss, temp)){  
+				if(temp.compare(".\r") == 0){
+					inMail = false;
+					emails.push_back(cur_email);
+					cur_email.clear();
+				}
+				
+			}
+			if(inMail == true){ //Don't want to include the last packet with "." in our output
+				cur_email.append(*itr);
+			}
         } else {
             cur_init.append(*itr);
         }

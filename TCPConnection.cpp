@@ -82,10 +82,14 @@ void TCPConnection::tcpFlow(){
     
     /* Reconstruction of TCP flow from the client side*/
 	std::sort(init_buf.begin(), init_buf.end());
-	for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
+        
+        std::vector<TCP>::iterator it = init_buf.begin();
+        while(it != init_buf.end()){
 		if(it->ack_complete != 1){
-		   init_buf.erase(it);
-		}
+		   it = init_buf.erase(it);
+		} else {
+                    it++;
+                }
 	}
 	
 	for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
@@ -101,10 +105,14 @@ void TCPConnection::tcpFlow(){
 	
     /* Reconstruction of TCP flow from the server side*/
 	std::sort(recv_buf.begin(), recv_buf.end());
-	for (std::vector<TCP>::iterator it = recv_buf.begin(); it != recv_buf.end(); it++) {
+        
+        it = recv_buf.begin();
+        while(it != recv_buf.end()){
 		if(it->ack_complete != 1){
-		   recv_buf.erase(it);
-		}
+		   it = recv_buf.erase(it);
+		} else {
+                    it++;
+                }
 	}
 	
 	

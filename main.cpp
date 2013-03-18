@@ -47,7 +47,7 @@ map<IpKey, TCPConnection> connections;
 map<int, NetApp* > applicationCallbacks;
 
 //Packets
-vector<Packet> all_packets;
+vector<u_char *> all_packets;
 
 void print_total_count(int num_total_packets, int num_tpackets, int num_upackets, int num_opackets);
 void process_tcp(Packet *packet, struct sniff_tcp* raw_tcp, u_char *raw_packet);
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     u_char *raw_packet;
     int res;
 
-    register_applications();
+    //register_applications();
 
     if ((fp = pcap_open_offline("-", errbuf)) == NULL) {
         fprintf(stderr, "Error opening dump file");
@@ -121,20 +121,20 @@ int main(int argc, char** argv) {
                 num_opackets++;
             }
 
-
             packet.PrintPacket();
-            all_packets.push_back(packet);
+            all_packets.push_back(raw_packet);
 
 
         }
     }
 
     {
-        vector<Packet>::iterator itr;
+        vector<u_char *>::iterator itr;
         for (itr = all_packets.begin(); itr != all_packets.end(); itr++) {
-            delete &(*itr);
+            free(raw_packet);
         }
     }
+    all_packets.clear();
 
     if (FLAG && strcmp("-t", FLAG) == 0) {
         cleanup_connections();
@@ -179,7 +179,7 @@ void process_tcp(Packet *packet, struct sniff_tcp *raw_tcp, u_char *raw_packet) 
     // perform additional logic
     if (FLAG && (strcmp("-t", FLAG) == 0 || strcmp("-m", FLAG) == 0)) {
 
-        IpKey key = *(new IpKey(packet->ip, (TCP *) packet->transport));
+        IpKey key(packet->ip, (TCP *) packet->transport);
 
         map<IpKey, TCPConnection> ::iterator conn = connections.find(key);
         TCPConnection c;
@@ -249,7 +249,10 @@ void cleanup_connections() {
     for (conn = connections.begin(); conn != connections.end(); conn++) {
         conn->second.tcpFlow();
         conn->second.forceClose();
+        delete &(conn->second);
+        delete &(conn->first);
     }
+    connections.clear();
 
 
 }

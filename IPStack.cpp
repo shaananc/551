@@ -10,8 +10,6 @@
 
 extern u_short PRINT_LEVEL;
 
-
-
 /* print Packet details*/
 
 void Packet::PrintPacket() {
@@ -111,4 +109,8 @@ u_short tcp_checksum(unsigned short len_tcp, unsigned short src_addr[], unsigned
     return (u_short) ~sum;
 }
 
-
+Packet::~Packet() {
+    free(ip);
+    free(ethernet);
+    delete transport;
+}

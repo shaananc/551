@@ -73,6 +73,8 @@ public:
     Packet() {
         ;
     }
+    
+    virtual ~Packet();
 
     //has layer 1
     sniff_ip *ip;

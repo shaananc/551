@@ -3,7 +3,7 @@ CFLAGS= -g -c -Wall -fpermissive -std=c++0x
 LDFLAGS= -lpcap 
 SOURCES=main.cpp IpKey.cpp IPStack.cpp TCPConnection.cpp SMTPProtocol.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=Packetparse
+EXECUTABLE=packetparse
 
 all: $(SOURCES) $(EXECUTABLE)
 	

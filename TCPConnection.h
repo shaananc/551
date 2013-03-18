@@ -29,6 +29,7 @@ public:
     }
 
     virtual ~TCPConnection() {
+        delete &key;
     };
 
     enum StateType {

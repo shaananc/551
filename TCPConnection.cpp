@@ -172,9 +172,9 @@ bool TCPConnection::processPacket(Packet *packet) {
         initializeConnection(packet);
     } else if (state == EST) {
 
-
+	duplicate_exists = 0;
         if (ip->ip_src.s_addr == initiator.s_addr) {
-            duplicate_exists = 0;
+            
 
             for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
                 if ((it->seq == tcp->seq) && (it->payload_size == tcp->payload_size)) {// && (it->payload_size <= tcp->payload_size)){
@@ -236,7 +236,7 @@ bool TCPConnection::processPacket(Packet *packet) {
             }
 
 
-
+	duplicate_exists = 0;
         
         } else if (ip->ip_src.s_addr == receiver.s_addr) {
             std::vector<TCP>::iterator iter;

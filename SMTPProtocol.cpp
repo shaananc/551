@@ -55,23 +55,38 @@ void SMTPProtocol::serverPayload(Payload payload) {
 void SMTPProtocol::clientPayload(std::vector<std::string> &clientData) {
     //string str((const char*)payload);
     bool inMail = false;
-    std::vector< std::vector<std::string> > init_strings;
-    std::vector< std::vector<std::string> > emails;
+    std::vector< std::string > init_strings;
+    std::vector< std::string > emails;
     
+    string cur_email;
+    string cur_init;
     
     std::vector<std::string>::iterator itr;
     for (itr = clientData.begin(); itr != clientData.end(); itr++) {
+        
         if (itr->find("DATA") != string::npos && inMail == false) {
-            //cout << *itr << endl;
+            init_strings.push_back(cur_init);
             inMail = true;
+            cur_init.clear();
         } else if (inMail == true){
-            cout << *itr;
+            cur_email.append(*itr);
             if(itr->find("\r\n.\r\n") != string::npos){
                 inMail = false;
-                cout << "END MAIL\n";
+                emails.push_back(cur_email);
+                //cout << "END MAIL\n";
+                cur_email.clear();
             }
+        } else {
+            cur_init.append(*itr);
         }
     }
+    
+    // Temp to check
+    for(itr = init_strings.begin(); itr != init_strings.end(); itr++){
+        cout << *itr << endl;
+    }
+    
+    
 }
 
 //Takes payload sent FROM server

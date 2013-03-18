@@ -23,9 +23,19 @@ void SMTPProtocol::serverPayload(Payload payload) {
     
 string str((const char*) payload);
 //unsigned foundInit;
-if((str.find("HELO")||str.find("EHLO"))!=std::string::npos)
+if (state == WRITE){
+    if(str.compare(".\n")){
+        // finish email
+        // process email
+        state = BEGIN;
+        parseEmail(message);
+    }
+    message.append(str);
+    cout << message << endl;
+}
+else if((str.find("HELO")||str.find("EHLO"))!=std::string::npos)
 {
-state = INIT;
+state = BEGIN;
 }
 else if(str.find("MAIL FROM")!=std::string::npos && state ==BEGIN)
 {

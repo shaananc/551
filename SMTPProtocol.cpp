@@ -10,11 +10,14 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 
 // Takes payload sent TO server
 // Dumps the actual message to 'message' and then calls parseEmail
 using namespace boost;
+
+extern map<int, NetApp> applicationCallbacks;
 
 void SMTPProtocol::serverPayload(Payload payload) {
     
@@ -44,6 +47,8 @@ state = INIT;
 
 
 }
+
+
 
 // Takes payload sent TO client
 

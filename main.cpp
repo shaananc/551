@@ -44,7 +44,7 @@ u_short PRINT_LEVEL;
 map<IpKey, TCPConnection> connections;
 
 // A map from server port to registered application callbacks on TCP ports
-map<int, NetApp* > applicationCallbacks;
+map<int, NetApp> applicationCallbacks;
 
 //Packets
 vector<u_char *> all_packets;
@@ -207,21 +207,7 @@ void process_tcp(Packet *packet, struct sniff_tcp *raw_tcp, u_char *raw_packet) 
         }
 
 
-        if (strcmp("-m", FLAG) == 0) {
 
-            map<int, NetApp*>::iterator app = applicationCallbacks.find(conn->second.recv_port);
-            // There is an application waiting
-            if (conn->second.state == TCPConnection::EST && app != applicationCallbacks.end()) {
-
-                // Server sending
-                if (c.initiator.s_addr == packet->ip->ip_src.s_addr) {
-                    app->second->clientPayload(packet->transport->payload);
-                } else if (c.receiver.s_addr == packet->ip->ip_src.s_addr) {
-                    app->second->serverPayload(packet->transport->payload);
-                }
-            }
-
-        }
 
     }
 
@@ -258,10 +244,10 @@ void cleanup_connections() {
 }
 
 void register_applications() {
-    NetApp *smtp25 = (NetApp *) new SMTPProtocol();
+    NetApp smtp25;
     applicationCallbacks.insert(make_pair(25, smtp25));
-    NetApp *smtp587 = (NetApp *) new SMTPProtocol();
+    NetApp smtp587;
     applicationCallbacks.insert(make_pair(587, smtp587));
-    NetApp *smtp465 = (NetApp *) new SMTPProtocol();
+    NetApp smtp465;
     applicationCallbacks.insert(make_pair(465, smtp465));
 }

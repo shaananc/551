@@ -20,39 +20,29 @@ using namespace boost;
 extern map<int, NetApp> applicationCallbacks;
 
 void SMTPProtocol::serverPayload(Payload payload) {
-    
-string str((const char*) payload);
-//unsigned foundInit;
-if (state == WRITE){
-    if(str.compare(".\n")){
-        // finish email
-        // process email
+
+    string str((const char*) payload);
+    //unsigned foundInit;
+    if (state == WRITE) {
+        if (str.compare(".\n")) {
+            // finish email
+            // process email
+            state = BEGIN;
+            parseEmail(message);
+        }
+        message.append(str);
+        cout << message << endl;
+    } else if ((str.find("HELO") || str.find("EHLO")) != std::string::npos) {
         state = BEGIN;
-        parseEmail(message);
+    } else if (str.find("MAIL FROM") != std::string::npos && state == BEGIN) {
+        state = ECREAT;
+    } else if (str.find("RCPT TO") != std::string::npos && state == ECREAT) {
+        state = RECP_SET;
+    } else if (str.find("DATA") != std::string::npos && state == RECP_SET) {
+        state = WRITE;
+    } else if (str.find("RSET") != std::string::npos) {
+        state = INIT;
     }
-    message.append(str);
-    cout << message << endl;
-}
-else if((str.find("HELO")||str.find("EHLO"))!=std::string::npos)
-{
-state = BEGIN;
-}
-else if(str.find("MAIL FROM")!=std::string::npos && state ==BEGIN)
-{
-state = ECREAT;
-}
-else if(str.find("RCPT TO")!=std::string::npos && state == ECREAT)
-{
-state = RECP_SET;
-}
-else if(str.find("DATA")!=std::string::npos && state == RECP_SET)
-{
-state = WRITE;
-}
-else if(str.find("RSET")!=std::string::npos)
-{
-state = INIT;
-}
 
 
 
@@ -64,10 +54,23 @@ state = INIT;
 
 void SMTPProtocol::clientPayload(std::vector<std::string> &clientData) {
     //string str((const char*)payload);
+    bool inMail = false;
+    std::vector< std::vector<std::string> > init_strings;
+    std::vector< std::vector<std::string> > emails;
+    
     
     std::vector<std::string>::iterator itr;
-    for(itr = clientData.begin(); itr != clientData.end(); itr++){
-        cout << *itr << endl;
+    for (itr = clientData.begin(); itr != clientData.end(); itr++) {
+        if (itr->find("DATA") != string::npos && inMail == false) {
+            //cout << *itr << endl;
+            inMail = true;
+        } else if (inMail == true){
+            cout << *itr;
+            if(itr->find("\r\n.\r\n") != string::npos){
+                inMail = false;
+                cout << "END MAIL\n";
+            }
+        }
     }
 }
 
@@ -80,94 +83,90 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData) {
 // Reads email header
 
 void SMTPProtocol::parseEmail(string email) {
-//ing namespace boost;
-if(email.size()!=0)
-{
-std::vector<string>fields;
-std::vector<string>sendorVector;
-std::vector<string>fromVector;
-std::vector<string>receiveVector;
-std::vector<string>subjectVector;
-std::vector<string>dateVector;
-std::vector<string>mimeversionVector;
-std::vector<string>contenttypeVector;
-std::vector<string>xmailerVector;
-std::vector<string>threadIndexVector;
-std::vector<string>xmimeOleVector;
-std::vector<string>emailbodyVector;
-//string str = string(const char*)(payload);
+    //ing namespace boost;
+    if (email.size() != 0) {
+        std::vector<string>fields;
+        std::vector<string>sendorVector;
+        std::vector<string>fromVector;
+        std::vector<string>receiveVector;
+        std::vector<string>subjectVector;
+        std::vector<string>dateVector;
+        std::vector<string>mimeversionVector;
+        std::vector<string>contenttypeVector;
+        std::vector<string>xmailerVector;
+        std::vector<string>threadIndexVector;
+        std::vector<string>xmimeOleVector;
+        std::vector<string>emailbodyVector;
+        //string str = string(const char*)(payload);
 
 
 
-//Split code
+        //Split code
 
 
 
 
-boost::split( fields, email, boost::is_any_of( "\n" ) );
+        boost::split(fields, email, boost::is_any_of("\n"));
 
-// for (size_t n = 0; n < fields.size(); n++)
-//{
-  //boost::split(
-  std::string goAheadField("354 go ahead");
-if(fields[0].find(goAheadField)!=std::string::npos)
-{
- // cout<<fields[0]<<endl;
-  split(sendorVector,fields[1],is_any_of( ":" ));
+        // for (size_t n = 0; n < fields.size(); n++)
+        //{
+        //boost::split(
+        std::string goAheadField("354 go ahead");
+        if (fields[0].find(goAheadField) != std::string::npos) {
+            // cout<<fields[0]<<endl;
+            split(sendorVector, fields[1], is_any_of(":"));
 
-  cout<<"We are replying to "<<sendorVector[1]<<endl;
-  
-  split(fromVector,fields[2],is_any_of(":"));
- 
-  cout<<"The mail is from "<<fromVector[1]<<endl;
+            cout << "We are replying to " << sendorVector[1] << endl;
 
-  split(receiveVector,fields[3],is_any_of(":"));
+            split(fromVector, fields[2], is_any_of(":"));
 
-  cout<<"The mail is directed towards"<<receiveVector[1]<<endl;
+            cout << "The mail is from " << fromVector[1] << endl;
 
-  split(subjectVector,fields[4],is_any_of(":"));
-  
-  cout<<"The subject is"<<subjectVector[1]<<endl; 
+            split(receiveVector, fields[3], is_any_of(":"));
 
-  split(dateVector,fields[5],is_any_of(":"));
+            cout << "The mail is directed towards" << receiveVector[1] << endl;
 
-  cout<<"The date of email is"<<dateVector[1]<<endl;
-    
-  split(mimeversionVector,fields[6],is_any_of(":"));
+            split(subjectVector, fields[4], is_any_of(":"));
 
-  cout<<"The Mime Version of email is"<<mimeversionVector[1]<<endl;
+            cout << "The subject is" << subjectVector[1] << endl;
 
-  split(contenttypeVector,fields[7],is_any_of(":"));
+            split(dateVector, fields[5], is_any_of(":"));
 
-  cout<<"The Content Type of email is"<<contenttypeVector[1]<<endl;
+            cout << "The date of email is" << dateVector[1] << endl;
 
-  split(xmailerVector,fields[9],is_any_of(":"));
+            split(mimeversionVector, fields[6], is_any_of(":"));
 
-  cout<<"The X-Mailer Type of email is"<<xmailerVector[1]<<endl;
+            cout << "The Mime Version of email is" << mimeversionVector[1] << endl;
 
-  split(threadIndexVector,fields[10],is_any_of(":"));
+            split(contenttypeVector, fields[7], is_any_of(":"));
 
-  cout<<"The Thread Index of email is"<<threadIndexVector[1]<<endl;
-  
-  split(xmimeOleVector,fields[11],is_any_of(":"));
+            cout << "The Content Type of email is" << contenttypeVector[1] << endl;
 
-  cout<<"The xmimeOle Type of email is"<<xmimeOleVector[1]<<endl;
+            split(xmailerVector, fields[9], is_any_of(":"));
 
-  //cout << fields[ n ] << endl;
-  //cout << endl;
-}
-else{
-cout<<"There's some problem"<<endl;
-}
-split(emailbodyVector,email,is_any_of("This is a multi-part message in MIME format."));
-cout<<"the body content is "<<emailbodyVector[1]<<endl;
-//}
-}
-else{
-cout<< "There no payload attached to it";
-}
+            cout << "The X-Mailer Type of email is" << xmailerVector[1] << endl;
+
+            split(threadIndexVector, fields[10], is_any_of(":"));
+
+            cout << "The Thread Index of email is" << threadIndexVector[1] << endl;
+
+            split(xmimeOleVector, fields[11], is_any_of(":"));
+
+            cout << "The xmimeOle Type of email is" << xmimeOleVector[1] << endl;
+
+            //cout << fields[ n ] << endl;
+            //cout << endl;
+        } else {
+            cout << "There's some problem" << endl;
+        }
+        split(emailbodyVector, email, is_any_of("This is a multi-part message in MIME format."));
+        cout << "the body content is " << emailbodyVector[1] << endl;
+        //}
+    } else {
+        cout << "There no payload attached to it";
+    }
 }
 
- 
-    // Email headers will be the start of the DATA segment if it starts with "Reply-To" and ends after the first BLANK newline
+
+// Email headers will be the start of the DATA segment if it starts with "Reply-To" and ends after the first BLANK newline
 

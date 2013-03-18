@@ -128,7 +128,7 @@ void TCPConnection::tcpFlow(){
 	}
 	
 	SMTPProtocol smtp;
-	smtp.clientPayload(clientData);
+	smtp.clientPayload(clientData, serverData);
 	//smtp.serverPayload(serverData);
 }
 

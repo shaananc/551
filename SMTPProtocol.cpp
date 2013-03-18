@@ -60,11 +60,16 @@ state = INIT;
 
 
 
-// Takes payload sent TO client
+// Takes payload sent FROM client
 
-void SMTPProtocol::clientPayload(Payload payload) {
-    string str((const char*)payload);
+void SMTPProtocol::clientPayload(std::vector<std::string> &clientData) {
+    //string str((const char*)payload);
 }
+
+//Takes payload sent FROM server
+/*void SMTPProtocol::serverPayload(std::vector<std::string> &serverData) {
+    
+}*/
 
 
 // Reads email header

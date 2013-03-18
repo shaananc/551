@@ -177,16 +177,17 @@ bool TCPConnection::processPacket(Packet *packet) {
             duplicate_exists = 0;
 
             for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
-                if (it->seq == tcp->seq) {// && (it->payload_size <= tcp->payload_size)){
+                if ((it->seq == tcp->seq) && (it->payload_size == tcp->payload_size)) {// && (it->payload_size <= tcp->payload_size)){
                     duplicate_exists = 1;
                     init_duplicates++;
                 }
             }
 
-            if (duplicate_exists == 0) {
+            if (duplicate_exists == 0 tcp->payload_size > 0) {
                 TCP t;
     		t.seq = tcp->seq;
 		t.payload_size = tcp->payload_size;
+		t.ack_complete = 0;
 		std::stringstream s;
 		int i = 0;
 		u_char *c = tcp->payload;
@@ -240,17 +241,18 @@ bool TCPConnection::processPacket(Packet *packet) {
         } else if (ip->ip_src.s_addr == receiver.s_addr) {
             std::vector<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
-                if (iter->seq == tcp->seq) { //&& (iter->payload_size <= tcp->payload_size)){
+                if ((iter->seq == tcp->seq) && (iter->payload_size == tcp->payload_size)) { //&& (iter->payload_size <= tcp->payload_size)){
                     duplicate_exists = 1;
                     recv_duplicates++;
                 }
             }
 
 
-            if (duplicate_exists == 0) {
+            if (duplicate_exists == 0 && tcp->payload_size > 0) {
                 TCP t;
     		t.seq = tcp->seq;
 		t.payload_size = tcp->payload_size;
+		t.ack_complete = 0;
 		std::stringstream s;
 		int i = 0;
 		u_char *c = tcp->payload;

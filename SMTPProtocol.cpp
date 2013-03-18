@@ -53,11 +53,13 @@ void SMTPProtocol::serverPayload(Payload payload) {
 
 // Takes payload sent FROM client
 
-void SMTPProtocol::clientPayload(std::vector<std::string> &clientData) {
+void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vector<std::string> &serverData) {
     //string str((const char*)payload);
     bool inMail = false;
+    bool mailSent = false;
     std::vector< std::string > init_strings;
     std::vector< std::string > emails;
+    std::vector<int> emailResponses;
     
     string cur_email;
     string cur_init;
@@ -92,11 +94,30 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData) {
     }
     
     // Temp to check
+    /*
     for(itr = init_strings.begin(); itr != init_strings.end(); itr++){
         cout << *itr << endl;
     }
+    */
     
-    
+    std::vector<std::string>::iterator iter;
+    for (iter = serverData.begin(); iter != serverData.end(); iter++) {
+	if(((*iter).find("354") == 0) && (mailSent == false)){
+	   mailSent = true;
+	} else if (mailSent == true){
+	   if((*iter).find("250 OK") == 0){ //email Accepted
+		mailSent = false;
+		emailResponses.push_back(1); //push 1 to indicate email accepted
+	   } else { //If it's not 250, then email is rejected. There are too many codes for why an email could be rejected.
+		mailSent = false;
+		emailResponses.push_back(0); //push 0 to indicate email rejected
+	   }
+        }
+     }
+     
+     
+ //TODO: check the emails in emails buffer with the corresponding acknowledgements in emailResponses buffer to print if an email is accepted or rejected.
+
 }
 
 //Takes payload sent FROM server

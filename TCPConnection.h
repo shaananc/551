@@ -88,13 +88,13 @@ protected:
 public:
 
 
-    bool processPacket(std::auto_ptr<Packet> packet);
-    void initializeConnection(std::auto_ptr<Packet> packet);
+    bool processPacket(Packet *packet);
+    void initializeConnection(Packet * packet);
     std::string getState();
     void setId(int id_num);
     void setKey(IpKey key);
     IpKey getKey();
-    void checktermination(std::auto_ptr<Packet> packet);
+    void checktermination(Packet *packet);
     void (*deathCallback)(TCPConnection*);
     void tcpFlow();
     void writeMeta();

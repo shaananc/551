@@ -12,7 +12,14 @@ using namespace std;
 #define SIZE_ETHERNET 14
 #define MAC_STRING_SIZE 19
 
-void TCPConnection::initializeConnection(std::auto_ptr<Packet> packet) {
+#include "IPStack.h"
+#include <map>
+
+
+extern map<int, NetApp* > applicationCallbacks;
+
+
+void TCPConnection::initializeConnection(Packet *packet) {
     // First step - check if SYN or SYN-ACK
     // All these lines should check sequence numbers on the ACK
     TCP *tcp = (TCP *) packet->transport;
@@ -140,7 +147,7 @@ void TCPConnection::writeMeta() {
 
 }
 
-bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
+bool TCPConnection::processPacket(Packet *packet) {
     TCP *tcp = (TCP *) packet->transport;
     struct sniff_ip *ip = packet->ip;
     int duplicate_exists;
@@ -298,7 +305,7 @@ bool TCPConnection::processPacket(std::auto_ptr<Packet> packet) {
 
 }
 
-void TCPConnection::checktermination(std::auto_ptr<Packet> packet) {
+void TCPConnection::checktermination(Packet *packet) {
     TCP* tcp = (TCP*) (packet->transport);
     if (((state == EST)&&(tcp->flags & TH_FIN)) || ((state == EST)&&(tcp->flags & TH_FIN)&&(tcp->flags & TH_ACK))) {
         //Here the ack corresponds to ack of ther last packet and hence has to be taken care like the lsst ack packet before termination

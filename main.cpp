@@ -26,6 +26,7 @@
 #include "TCPConnection.h"
 
 using namespace std;
+//using namespace boost;
 
 
 int num_total_packets;
@@ -45,9 +46,12 @@ map<IpKey, TCPConnection> connections;
 // A map from server port to registered application callbacks on TCP ports
 map<int, NetApp* > applicationCallbacks;
 
+//Packets
+vector<Packet> all_packets;
+
 void print_total_count(int num_total_packets, int num_tpackets, int num_upackets, int num_opackets);
-void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp* raw_tcp, u_char *raw_packet);
-void process_udp(auto_ptr<Packet> packet, struct sniff_udp* raw_udp);
+void process_tcp(Packet *packet, struct sniff_tcp* raw_tcp, u_char *raw_packet);
+void process_udp(Packet *packet, struct sniff_udp* raw_udp);
 void cleanup_connections();
 void register_applications();
 void connection_died(TCPConnection *c);
@@ -85,42 +89,50 @@ int main(int argc, char** argv) {
 
         num_total_packets++;
 
-        auto_ptr<Packet> packet(new Packet());
-        packet->ethernet = (struct sniff_ethernet*) (raw_packet);
+        Packet packet;
+        packet.ethernet = (struct sniff_ethernet*) (raw_packet);
 
-        if (!(packet->ethernet->ether_type == PROT_IP)) {
-            packet->transport_type = PROT_OTHER;
+        if (!(packet.ethernet->ether_type == PROT_IP)) {
+            packet.transport_type = PROT_OTHER;
         } else {
 
-            packet->ip = (struct sniff_ip*) (raw_packet + SIZE_ETHERNET); /* address of ip header*/
-            packet->ip_size = IP_HL(packet->ip)*4; /* size in bytes*/
+            packet.ip = (struct sniff_ip*) (raw_packet + SIZE_ETHERNET); /* address of ip header*/
+            packet.ip_size = IP_HL(packet.ip)*4; /* size in bytes*/
 
-            if ((int) packet->ip->ip_p == PROT_TCP) { /*tcp packet*/
+            if ((int) packet.ip->ip_p == PROT_TCP) { /*tcp packet*/
                 num_tpackets++;
 
-                packet->transport_type = PROT_TCP;
-                packet->transport = new TCP();
-                struct sniff_tcp *raw_tcp = (struct sniff_tcp*) (raw_packet + SIZE_ETHERNET + packet->ip_size); /* address of tcp header located after ip header*/
-                process_tcp(packet, raw_tcp, raw_packet);
+                packet.transport_type = PROT_TCP;
+                packet.transport = new TCP();
+                struct sniff_tcp *raw_tcp = (struct sniff_tcp*) (raw_packet + SIZE_ETHERNET + packet.ip_size); /* address of tcp header located after ip header*/
+                process_tcp(&packet, raw_tcp, raw_packet);
 
-            } else if (packet->transport_type == PROT_UDP) { /* udp packet*/
+            } else if ((int) packet.ip->ip_p == PROT_UDP) { /* udp packet*/
                 num_upackets++;
-                packet->transport_type = PROT_UDP;
-                packet->transport = new UDP();
+                packet.transport_type = PROT_UDP;
+                packet.transport = new UDP();
 
-                sniff_udp *raw_udp = (struct sniff_udp*) (raw_packet + SIZE_ETHERNET + packet->ip_size); /* address of udp*/
+                sniff_udp *raw_udp = (struct sniff_udp*) (raw_packet + SIZE_ETHERNET + packet.ip_size); /* address of udp*/
 
-                process_udp(packet, raw_udp);
+                process_udp(&packet, raw_udp);
 
             } else { /* other types of packets*/
-                packet->transport_type = PROT_OTHER;
+                packet.transport_type = PROT_OTHER;
                 num_opackets++;
             }
 
 
-            packet->PrintPacket();
+            packet.PrintPacket();
+            all_packets.push_back(packet);
 
 
+        }
+    }
+
+    {
+        vector<Packet>::iterator itr;
+        for (itr = all_packets.begin(); itr != all_packets.end(); itr++) {
+            delete &(*itr);
         }
     }
 
@@ -141,7 +153,7 @@ void print_total_count(int num_total_packets, int num_tpackets, int num_upackets
     }
 }
 
-void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp *raw_tcp, u_char *raw_packet) {
+void process_tcp(Packet *packet, struct sniff_tcp *raw_tcp, u_char *raw_packet) {
 
 
     TCP *tcp = (TCP *) packet->transport;
@@ -218,7 +230,7 @@ void process_tcp(auto_ptr<Packet> packet, struct sniff_tcp *raw_tcp, u_char *raw
 
 }
 
-void process_udp(auto_ptr<Packet> packet, struct sniff_udp* raw_udp) {
+void process_udp(Packet *packet, struct sniff_udp* raw_udp) {
 
     UDP *udp = (UDP *) packet->transport;
 

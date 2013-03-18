@@ -71,20 +71,21 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData) {
             cur_init.clear();
         } else if (inMail == true){
             std::stringstream ss(*itr);
-    		std::string temp;
-			/*Check each line within packet for "." to indicate end of email. 
-			There is some other junk in the packet from IMF protocol. */
-			while(std::getline(ss, temp)){  
-				if(temp.compare(".\r") == 0){
-					inMail = false;
-					emails.push_back(cur_email);
-					cur_email.clear();
-				}
-				
-			}
-			if(inMail == true){ //Don't want to include the last packet with "." in our output
-				cur_email.append(*itr);
-			}
+    	    std::string temp;
+	    /*Check each line within packet for "." to indicate end of email. 
+	    There is some other junk in the packet from IMF protocol. */
+	    while(std::getline(ss, temp)){  
+		if(temp.compare(".\r") == 0){
+		  inMail = false;
+		  emails.push_back(cur_email);
+		  cur_email.clear();
+		}		
+	    }
+	    
+	    if(inMail == true){ //Don't want to include the last packet with "." in our output
+		cur_email.append(*itr);
+	    }
+	    
         } else {
             cur_init.append(*itr);
         }

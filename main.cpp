@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
 //    }
 //    all_packets.clear();
 
-    if (FLAG && strcmp("-t", FLAG) == 0) {
+    if (FLAG && (strcmp("-t", FLAG) == 0 || strcmp("-m", FLAG) == 0)) {
         cleanup_connections();
     }
 

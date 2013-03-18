@@ -333,8 +333,8 @@ void TCPConnection::checktermination(Packet *packet) {
         state = FIN_EST;
         force_close = true;
         cout << "Termination done" << endl;
-        tcpFlow();
-        writeMeta();
+        //tcpFlow();
+        //writeMeta();
         deathCallback(this);
     } else {
 
@@ -364,7 +364,7 @@ IpKey TCPConnection::getKey() {
 void TCPConnection::forceClose() {
     force_close = true;
     cout << "force close" << endl;
-    this->tcpFlow();
-    this->writeMeta();
+    //this->tcpFlow();
+    //this->writeMeta();
 
 }

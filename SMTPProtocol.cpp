@@ -89,6 +89,7 @@ std::vector<string>contenttypeVector;
 std::vector<string>xmailerVector;
 std::vector<string>threadIndexVector;
 std::vector<string>xmimeOleVector;
+std::vector<string>emailbodyVector;
 //string str = string(const char*)(payload);
 
 
@@ -103,7 +104,7 @@ boost::split( fields, email, boost::is_any_of( "\n" ) );
 // for (size_t n = 0; n < fields.size(); n++)
 //{
   //boost::split(
-  std::string goAheadField("go ahead");
+  std::string goAheadField("354 go ahead");
 if(fields[0].find(goAheadField)!=std::string::npos)
 {
  // cout<<fields[0]<<endl;
@@ -153,7 +154,8 @@ if(fields[0].find(goAheadField)!=std::string::npos)
 else{
 cout<<"There's some problem"<<endl;
 }
-
+split(emailbodyVector,email,is_any_of("This is a multi-part message in MIME format."));
+cout<<"the body content is "<<emailbodyVector[1]<<endl;
 //}
 }
 else{

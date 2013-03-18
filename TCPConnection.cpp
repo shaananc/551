@@ -183,7 +183,7 @@ bool TCPConnection::processPacket(Packet *packet) {
                 }
             }
 
-            if (duplicate_exists == 0 tcp->payload_size > 0) {
+            if (duplicate_exists == 0 && tcp->payload_size > 0) {
                 TCP t;
     		t.seq = tcp->seq;
 		t.payload_size = tcp->payload_size;

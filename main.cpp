@@ -128,13 +128,13 @@ int main(int argc, char** argv) {
         }
     }
 
-    {
-        vector<u_char *>::iterator itr;
-        for (itr = all_packets.begin(); itr != all_packets.end(); itr++) {
-            free(raw_packet);
-        }
-    }
-    all_packets.clear();
+//    {
+//        vector<u_char *>::iterator itr;
+//        for (itr = all_packets.begin(); itr != all_packets.end(); itr++) {
+//            free(raw_packet);
+//        }
+//    }
+//    all_packets.clear();
 
     if (FLAG && strcmp("-t", FLAG) == 0) {
         cleanup_connections();
@@ -235,8 +235,6 @@ void cleanup_connections() {
     for (conn = connections.begin(); conn != connections.end(); conn++) {
         conn->second.tcpFlow();
         conn->second.forceClose();
-        delete &(conn->second);
-        delete &(conn->first);
     }
     connections.clear();
 

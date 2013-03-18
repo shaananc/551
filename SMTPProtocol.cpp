@@ -64,6 +64,11 @@ state = INIT;
 
 void SMTPProtocol::clientPayload(std::vector<std::string> &clientData) {
     //string str((const char*)payload);
+    
+    std::vector<std::string>::iterator itr;
+    for(itr = clientData.begin(); itr != clientData.end(); itr++){
+        cout << *itr << endl;
+    }
 }
 
 //Takes payload sent FROM server

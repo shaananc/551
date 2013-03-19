@@ -19,36 +19,6 @@
 //using namespace boost;
 
 extern map<int, NetApp> applicationCallbacks;
-/*
-void SMTPProtocol::serverPayload(Payload payload) {
-
-    string str((const char*) payload);
-    //unsigned foundInit;
-    if (state == WRITE) {
-        if (str.compare(".\n")) {
-            // finish email
-            // process email
-            state = BEGIN;
-            parseEmail(message);
-        }
-        message.append(str);
-        cout << message << endl;
-    } else if ((str.find("HELO") || str.find("EHLO")) != std::string::npos) {
-        state = BEGIN;
-    } else if (str.find("MAIL FROM") != std::string::npos && state == BEGIN) {
-        state = ECREAT;
-    } else if (str.find("RCPT TO") != std::string::npos && state == ECREAT) {
-        state = RECP_SET;
-    } else if (str.find("DATA") != std::string::npos && state == RECP_SET) {
-        state = WRITE;
-    } else if (str.find("RSET") != std::string::npos) {
-        state = INIT;
-    }
-
-
-
-}
-*/
 
 
 // Takes payload sent FROM client
@@ -93,12 +63,6 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
         }
     }
     
-    // Temp to check
-    /*
-    for(itr = init_strings.begin(); itr != init_strings.end(); itr++){
-        cout << *itr << endl;
-    }
-    */
     
     /* Check sever response*/
     std::vector<std::string>::iterator iter;
@@ -119,7 +83,7 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
     /* Check if email was accepted or rejected, and Print to files!*/
     std::vector<int>::iterator response = emailResponses.begin();
     for(itr = emails.begin(); itr != emails.end(); itr++){
-	cout << *itr <<"\n";
+	//cout << *itr <<"\n";
 	if(response != emailResponses.end()){
 	    if(*response == 1){
 	      cout << "ACCEPT\n";
@@ -129,13 +93,24 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
 	    response++;
 	}
      }
+    
+    output_emails(init_strings, emails, emailResponses);
 
 }
 
-//Takes payload sent FROM server
-/*void SMTPProtocol::serverPayload(std::vector<std::string> &serverData) {
+void SMTPProtocol::output_emails(std::vector< std::string > init_strings,
+            std::vector< std::string > emails,
+            std::vector<int> emailResponses){
+    vector<string>::iterator init_itr;
+    vector<string>::iterator emails_itr = emails.begin();
+    vector<int>::iterator resp_itr = emailResponses.begin(); 
     
-}*/
+    for(init_itr = init_strings.begin(); init_itr != init_strings.end(); init_itr++){
+        cout << *init_itr << endl << "\nNEW INIT";
+    }
+    
+}
+
 
 
 // Reads email header

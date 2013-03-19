@@ -18,7 +18,7 @@ using namespace std;
 
 
 extern map<int, NetApp* > applicationCallbacks;
-
+extern char *FLAG;
 
 void TCPConnection::initializeConnection(Packet *packet) {
     // First step - check if SYN or SYN-ACK
@@ -78,60 +78,62 @@ void TCPConnection::setId(int id_num) {
     this->id_num = id_num;
 }
 
-void TCPConnection::tcpFlow(){
-    
-    /* Reconstruction of TCP flow from the client side*/
-	std::sort(init_buf.begin(), init_buf.end());
-        
-        std::vector<TCP>::iterator it = init_buf.begin();
-        while(it != init_buf.end()){
-		if(it->ack_complete != 1){
-		   it = init_buf.erase(it);
-		} else {
-                    it++;
-                }
-	}
-	
-	for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
-		std::vector<TCP>::iterator nit = it;
-		++nit;
-		uint32_t next = nit->seq;
-		uint32_t i = next - it->seq;
-		
-		std::string in = it->pload.substr(0, i);
-		
-		clientData.push_back(in);	
-	}
-	
-    /* Reconstruction of TCP flow from the server side*/
-	std::sort(recv_buf.begin(), recv_buf.end());
-        
-        it = recv_buf.begin();
-        while(it != recv_buf.end()){
-		if(it->ack_complete != 1){
-		   it = recv_buf.erase(it);
-		} else {
-                    it++;
-                }
-	}
-	
-	
-	for (std::vector<TCP>::iterator it = recv_buf.begin(); it != recv_buf.end(); it++) {
-		std::vector<TCP>::iterator nit = it;
-		++nit;
-		uint32_t next = nit->seq;
-		uint32_t i = next - it->seq;
-		
-		std::string in = it->pload.substr(0, i);
-		
-		serverData.push_back(in);	
-	}
-	
-	SMTPProtocol smtp;
-	smtp.clientPayload(clientData, serverData);
-	//smtp.serverPayload(serverData);
-}
+void TCPConnection::tcpFlow() {
 
+    /* Reconstruction of TCP flow from the client side*/
+    std::sort(init_buf.begin(), init_buf.end());
+
+    std::vector<TCP>::iterator it = init_buf.begin();
+    while (it != init_buf.end()) {
+        if (it->ack_complete != 1) {
+            it = init_buf.erase(it);
+        } else {
+            it++;
+        }
+    }
+
+    for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
+        std::vector<TCP>::iterator nit = it;
+        ++nit;
+        uint32_t next = nit->seq;
+        uint32_t i = next - it->seq;
+
+        std::string in = it->pload.substr(0, i);
+
+        clientData.push_back(in);
+    }
+
+    /* Reconstruction of TCP flow from the server side*/
+    std::sort(recv_buf.begin(), recv_buf.end());
+
+    it = recv_buf.begin();
+    while (it != recv_buf.end()) {
+        if (it->ack_complete != 1) {
+            it = recv_buf.erase(it);
+        } else {
+            it++;
+        }
+    }
+
+
+    for (std::vector<TCP>::iterator it = recv_buf.begin(); it != recv_buf.end(); it++) {
+        std::vector<TCP>::iterator nit = it;
+        ++nit;
+        uint32_t next = nit->seq;
+        uint32_t i = next - it->seq;
+
+        std::string in = it->pload.substr(0, i);
+
+        serverData.push_back(in);
+    }
+
+    if (strcmp(FLAG, "-m") == 0) {
+        SMTPProtocol smtp;
+        smtp.clientPayload(clientData, serverData);
+    }
+
+    //smtp.serverPayload(serverData);
+}
 
 void TCPConnection::writeMeta() {
 
@@ -172,9 +174,9 @@ bool TCPConnection::processPacket(Packet *packet) {
         initializeConnection(packet);
     } else if (state == EST) {
 
-	duplicate_exists = 0;
+        duplicate_exists = 0;
         if (ip->ip_src.s_addr == initiator.s_addr) {
-            
+
 
             for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
                 if ((it->seq == tcp->seq) && (it->payload_size == tcp->payload_size)) {// && (it->payload_size <= tcp->payload_size)){
@@ -185,27 +187,27 @@ bool TCPConnection::processPacket(Packet *packet) {
 
             if (duplicate_exists == 0 && tcp->payload_size > 0) {
                 TCP t;
-    		t.seq = tcp->seq;
-		t.payload_size = tcp->payload_size;
-		t.ack_complete = 0;
-		std::stringstream s;
-		int i = 0;
-		u_char *c = tcp->payload;
-		while (*c && i < tcp->payload_size) {
-		  s << *c;
-		  c++;
-	          i++;
-		}
-		std::string cstring = s.str();
-				
-		t.pload = cstring;
-				
+                t.seq = tcp->seq;
+                t.payload_size = tcp->payload_size;
+                t.ack_complete = 0;
+                std::stringstream s;
+                int i = 0;
+                u_char *c = tcp->payload;
+                while (*c && i < tcp->payload_size) {
+                    s << *c;
+                    c++;
+                    i++;
+                }
+                std::string cstring = s.str();
+
+                t.pload = cstring;
+
                 init_buf.push_back(t);
             }
 
             std::vector<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
-                
+
                 if (iter->seq < tcp->ack) {
                     if (iter->ack_complete != 1) {
                         iter->ack_complete = 1;
@@ -222,7 +224,7 @@ bool TCPConnection::processPacket(Packet *packet) {
                             p++;
                             i++;
                         }
-                        
+
                         //serverData.push(tcp->payload);
 
                         recv_file.close();
@@ -236,8 +238,8 @@ bool TCPConnection::processPacket(Packet *packet) {
             }
 
 
-	duplicate_exists = 0;
-        
+            duplicate_exists = 0;
+
         } else if (ip->ip_src.s_addr == receiver.s_addr) {
             std::vector<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
@@ -250,24 +252,24 @@ bool TCPConnection::processPacket(Packet *packet) {
 
             if (duplicate_exists == 0 && tcp->payload_size > 0) {
                 TCP t;
-    		t.seq = tcp->seq;
-		t.payload_size = tcp->payload_size;
-		t.ack_complete = 0;
-		std::stringstream s;
-		int i = 0;
-		u_char *c = tcp->payload;
-		while (*c && i < tcp->payload_size) {
-		  s << *c;
-		  c++;
-		  i++;
-		}
-		std::string cstring = s.str();
-				
-		t.pload = cstring;
-				
+                t.seq = tcp->seq;
+                t.payload_size = tcp->payload_size;
+                t.ack_complete = 0;
+                std::stringstream s;
+                int i = 0;
+                u_char *c = tcp->payload;
+                while (*c && i < tcp->payload_size) {
+                    s << *c;
+                    c++;
+                    i++;
+                }
+                std::string cstring = s.str();
+
+                t.pload = cstring;
+
                 recv_buf.push_back(t);
             }
-          
+
 
             for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
                 if (it->seq < tcp->ack) {
@@ -278,7 +280,7 @@ bool TCPConnection::processPacket(Packet *packet) {
                         filename << id_num << ".initiator";
                         std::ofstream init_file;
                         init_file.open(filename.str().c_str(), ios::app);
-                        
+
                         u_char *p = tcp->payload;
                         int i = 0;
                         while (*p && i < tcp->payload_size) {
@@ -290,10 +292,10 @@ bool TCPConnection::processPacket(Packet *packet) {
                         //it = init_buf.erase(it);
 
                         //clientData.push(tcp->payload);
-                        
+
                         packets_recv++;
                         bytes_recv += tcp->payload_size;
-                       
+
 
 
 

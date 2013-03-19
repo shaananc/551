@@ -116,7 +116,7 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
         }
      }
      
-    /* Check if email was accepted or rejected, and Print to iles!*/
+    /* Check if email was accepted or rejected, and Print to files!*/
     std::vector<int>::iterator response = emailResponses.begin();
     for(itr = emails.begin(); itr != emails.end(); itr++){
 	cout << *itr <<"\n";

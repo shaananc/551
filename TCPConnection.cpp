@@ -366,6 +366,7 @@ IpKey TCPConnection::getKey() {
 
 void TCPConnection::forceClose() {
     force_close = true;
+    this->tcpFlow();
     cout << "force close" << endl;
     //this->tcpFlow();
     //this->writeMeta();

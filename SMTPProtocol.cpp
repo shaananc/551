@@ -116,7 +116,18 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
      }
      
      
- //TODO: check the emails in emails buffer with the corresponding acknowledgements in emailResponses buffer to print if an email is accepted or rejected.
+    std::vector<int>::iterator response = emailResponses.begin();
+    for(itr = emails.begin(); itr != emails.end(); itr++){
+	cout << *itr <<"\n";
+	if(response != emailResponses.end()){
+	    if(*response == 1){
+	      cout << "ACCEPT\n";
+	    } else {
+	      cout << "REJECT\n";
+	    }
+	    response++;
+	}
+     }
 
 }
 

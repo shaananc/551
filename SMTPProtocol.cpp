@@ -105,12 +105,11 @@ void SMTPProtocol::output_emails(std::vector< std::string > init_strings,
     //Check if email was accepted or rejected, and Print to files!
     std::vector<int>::iterator response = emailResponses.begin();
     for(std::vector<std::string>::iterator itr = emails.begin(); itr != emails.end(); itr++){
+    	cout << *itr <<"\n"; //Email message
 	if(response != emailResponses.end()){
 	   if(*response == 1){
-		cout << *itr <<"\n";
 		cout << "ACCEPT\n";
 	    } else {
-		cout << *itr <<"\n";
 		cout << "REJECT\n";
 	    }
 		response++;

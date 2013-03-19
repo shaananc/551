@@ -23,7 +23,7 @@ extern map<int, NetApp> applicationCallbacks;
 
 // Takes payload sent FROM client
 
-void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vector<std::string> &serverData) {
+void SMTPProtocol::clientPayload(std::vector<TCP> &clientData, std::vector<TCP> &serverData) {
     //string str((const char*)payload);
     bool inMail = false;
     bool mailSent = false;
@@ -34,65 +34,65 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
     string cur_email;
     string cur_init;
     
-    std::vector<std::string>::iterator itr;
+   	//Parse email from client data
+    std::vector<TCP>::iterator itr;
     for (itr = clientData.begin(); itr != clientData.end(); itr++) {
-        
-        if (((*itr).compare("DATA\r\n") == 0) && (inMail == false)) {
-            init_strings.push_back(cur_init);
-            inMail = true;
-            cur_init.clear();
+    	
+	if (((itr->pload).compare("DATA\r\n") == 0) && (inMail == false)) {
+	   for(std::vector<TCP>::iterator iter = serverData.begin(); iter != serverData.end(); iter++){
+		   if(itr->ack == iter->seq){
+			if((iter->pload).find("354") == 0){
+			   init_strings.push_back(cur_init);
+			   inMail = true;
+			    cur_init.clear();
+			}
+		   }			
+	    }
+           
         } else if (inMail == true){
-            std::stringstream ss(*itr);
+	   std::stringstream ss(itr->pload);
     	    std::string temp;
-	    /*Check each line within packet for "." to indicate end of email. 
-	    There is some other junk in the packet from IMF protocol. */
-	    while(std::getline(ss, temp)){  
+	    while(std::getline(ss, temp)){  //Check each line within packet for "." to indicate end of email. 
 		if(temp.compare(".\r") == 0){
-		  inMail = false;
-		  emails.push_back(cur_email);
-		  cur_email.clear();
+		   inMail = false;
+		    emails.push_back(cur_email);
+		    cur_email.clear();
 		}		
 	    }
 	    
-	    if(inMail == true){ //Don't want to include the last packet with "." in our output
-		cur_email.append(*itr);
-	    }
+	   if(inMail == true){ //Don't want to include the last packet with "." in our output
+	      cur_email.append(itr->pload);
+	   }
 	    
         } else {
-            cur_init.append(*itr);
+            cur_init.append(itr->pload);
         }
     }
     
     
-    /* Check sever response*/
-    std::vector<std::string>::iterator iter;
+    if(inMail == true){ // Time-Out has occurred.
+	emails.push_back(cur_email);
+	cur_email.clear();
+	inMail = false;
+    }
+	
+    
+    // Check sever response
+    std::vector<TCP>::iterator iter;
     for (iter = serverData.begin(); iter != serverData.end(); iter++) {
-	if(((*iter).find("354") == 0) && (mailSent == false)){
+	if(((iter->pload).find("354") == 0) && (mailSent == false)){
 	   mailSent = true;
 	} else if (mailSent == true){
-	   if((*iter).find("250 OK") == 0){ //email Accepted
-		mailSent = false;
-		emailResponses.push_back(1); //push 1 to indicate email accepted
+	   if((iter->pload).find("250") == 0){ //email Accepted
+	     mailSent = false;
+	     emailResponses.push_back(1); //push 1 to indicate email accepted
 	   } else { //If it's not 250, then email is rejected. There are too many codes for why an email could be rejected.
-		mailSent = false;
-		emailResponses.push_back(0); //push 0 to indicate email rejected
+	      mailSent = false;
+	      emailResponses.push_back(0); //push 0 to indicate email rejected
 	   }
         }
-     }
-     
-    /* Check if email was accepted or rejected, and Print to files!*/
-    std::vector<int>::iterator response = emailResponses.begin();
-    for(itr = emails.begin(); itr != emails.end(); itr++){
-	//cout << *itr <<"\n";
-	if(response != emailResponses.end()){
-	    if(*response == 1){
-	      cout << "ACCEPT\n";
-	    } else {
-	      cout << "REJECT\n";
-	    }
-	    response++;
-	}
-     }
+    }
+	
     
     output_emails(init_strings, emails, emailResponses);
 
@@ -101,12 +101,20 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
 void SMTPProtocol::output_emails(std::vector< std::string > init_strings,
             std::vector< std::string > emails,
             std::vector<int> emailResponses){
-    vector<string>::iterator init_itr;
-    vector<string>::iterator emails_itr = emails.begin();
-    vector<int>::iterator resp_itr = emailResponses.begin(); 
     
-    for(init_itr = init_strings.begin(); init_itr != init_strings.end(); init_itr++){
-        cout << *init_itr << endl << "\nNEW INIT";
+    //Check if email was accepted or rejected, and Print to files!
+    std::vector<int>::iterator response = emailResponses.begin();
+    for(std::vector<std::string>::iterator itr = emails.begin(); itr != emails.end(); itr++){
+	if(response != emailResponses.end()){
+	   if(*response == 1){
+		cout << *itr <<"\n";
+		cout << "ACCEPT\n";
+	    } else {
+		cout << *itr <<"\n";
+		cout << "REJECT\n";
+	    }
+		response++;
+	}
     }
     
 }

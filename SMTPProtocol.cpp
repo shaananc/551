@@ -100,6 +100,7 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
     }
     */
     
+    /* Check sever response*/
     std::vector<std::string>::iterator iter;
     for (iter = serverData.begin(); iter != serverData.end(); iter++) {
 	if(((*iter).find("354") == 0) && (mailSent == false)){
@@ -115,7 +116,7 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
         }
      }
      
-     
+    /* Check if email was accepted or rejected, and Print to iles!*/
     std::vector<int>::iterator response = emailResponses.begin();
     for(itr = emails.begin(); itr != emails.end(); itr++){
 	cout << *itr <<"\n";

@@ -10,7 +10,7 @@
 
 #include <string>
 #include "IPStack.h"
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
 #include <iostream>
 //#include <string>
 #include <vector>
@@ -46,10 +46,10 @@ private:
 public:
 
 //    void print(std::vector<string>&v); 
-    void parseEmail(string email);
+    //void parseEmail(string email);
     virtual void clientPayload(std::vector<std::string> &clientData, std::vector<std::string> &serverData);
     //virtual void serverPayload(std::vector<std::string> &serverData);
-    virtual void serverPayload(Payload payload);
+    //virtual void serverPayload(Payload payload);
 };
 
 #endif	/* SMTPPROTOCOL_H */

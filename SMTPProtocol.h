@@ -50,7 +50,7 @@ public:
 
     //    void print(std::vector<string>&v); 
     //void parseEmail(string email);
-    virtual void clientPayload(std::vector<std::string> &clientData, std::vector<std::string> &serverData);
+    virtual void clientPayload(std::vector<TCP> &clientData, std::vector<TCP> &serverData);
     //virtual void serverPayload(std::vector<std::string> &serverData);
     //virtual void serverPayload(Payload payload);
     void output_emails(std::vector< std::string > init_strings,

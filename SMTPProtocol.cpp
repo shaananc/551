@@ -6,7 +6,7 @@
  */
 
 #include "SMTPProtocol.h"
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -16,10 +16,10 @@
 
 // Takes payload sent TO server
 // Dumps the actual message to 'message' and then calls parseEmail
-using namespace boost;
+//using namespace boost;
 
 extern map<int, NetApp> applicationCallbacks;
-
+/*
 void SMTPProtocol::serverPayload(Payload payload) {
 
     string str((const char*) payload);
@@ -48,7 +48,7 @@ void SMTPProtocol::serverPayload(Payload payload) {
 
 
 }
-
+*/
 
 
 // Takes payload sent FROM client
@@ -139,7 +139,7 @@ void SMTPProtocol::clientPayload(std::vector<std::string> &clientData, std::vect
 
 
 // Reads email header
-
+/*
 void SMTPProtocol::parseEmail(string email) {
     //ing namespace boost;
     if (email.size() != 0) {
@@ -224,7 +224,7 @@ void SMTPProtocol::parseEmail(string email) {
         cout << "There no payload attached to it";
     }
 }
-
+*/
 
 // Email headers will be the start of the DATA segment if it starts with "Reply-To" and ends after the first BLANK newline
 

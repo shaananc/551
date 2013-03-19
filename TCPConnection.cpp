@@ -93,15 +93,14 @@ void TCPConnection::tcpFlow() {
     }
 
     for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
-        std::vector<TCP>::iterator nit = it;
-        ++nit;
-        uint32_t next = nit->seq;
-        uint32_t i = next - it->seq;
-
-        std::string in = it->pload.substr(0, i);
-
-        clientData.push_back(in);
-    }
+    	std::vector<TCP>::iterator nit = it;
+		++nit;
+		uint32_t next = nit->seq;
+		uint32_t i = next - it->seq;
+		
+		it->pload = it->pload.substr(0, i);
+		clientData.push_back(*it);	
+	}
 
     /* Reconstruction of TCP flow from the server side*/
     std::sort(recv_buf.begin(), recv_buf.end());
@@ -117,15 +116,15 @@ void TCPConnection::tcpFlow() {
 
 
     for (std::vector<TCP>::iterator it = recv_buf.begin(); it != recv_buf.end(); it++) {
-        std::vector<TCP>::iterator nit = it;
-        ++nit;
-        uint32_t next = nit->seq;
-        uint32_t i = next - it->seq;
+    	std::vector<TCP>::iterator nit = it;
+		++nit;
+		uint32_t next = nit->seq;
+		uint32_t i = next - it->seq;
 
-        std::string in = it->pload.substr(0, i);
+		it->pload = it->pload.substr(0, i);
+		serverData.push_back(*it);
+	}
 
-        serverData.push_back(in);
-    }
 
     if (strcmp(FLAG, "-m") == 0) {
         SMTPProtocol smtp;
@@ -175,7 +174,7 @@ bool TCPConnection::processPacket(Packet *packet) {
     } else if (state == EST) {
 
         duplicate_exists = 0;
-        if (ip->ip_src.s_addr == initiator.s_addr) {
+        if (ip->ip_src.s_addr == initiator.s_addr && tcp->source_port == init_port) {
 
 
             for (std::vector<TCP>::iterator it = init_buf.begin(); it != init_buf.end(); it++) {
@@ -188,6 +187,7 @@ bool TCPConnection::processPacket(Packet *packet) {
             if (duplicate_exists == 0 && tcp->payload_size > 0) {
                 TCP t;
                 t.seq = tcp->seq;
+                t.ack = tcp->ack;
                 t.payload_size = tcp->payload_size;
                 t.ack_complete = 0;
                 std::stringstream s;
@@ -240,7 +240,7 @@ bool TCPConnection::processPacket(Packet *packet) {
 
             duplicate_exists = 0;
 
-        } else if (ip->ip_src.s_addr == receiver.s_addr) {
+        } else if (ip->ip_src.s_addr == receiver.s_addr && tcp->source_port == recv_port) {
             std::vector<TCP>::iterator iter;
             for (iter = recv_buf.begin(); iter != recv_buf.end(); iter++) {
                 if ((iter->seq == tcp->seq) && (iter->payload_size == tcp->payload_size)) { //&& (iter->payload_size <= tcp->payload_size)){
@@ -254,6 +254,7 @@ bool TCPConnection::processPacket(Packet *packet) {
                 TCP t;
                 t.seq = tcp->seq;
                 t.payload_size = tcp->payload_size;
+                t.ack = tcp->ack;
                 t.ack_complete = 0;
                 std::stringstream s;
                 int i = 0;

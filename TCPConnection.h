@@ -56,8 +56,8 @@ private:
     void setState(u_short state);
     std::vector<TCP> init_buf; //buffer for initiator
     std::vector<TCP> recv_buf; //buffer for receiver
-    std::vector<std::string> clientData;
-    std::vector<std::string> serverData;
+    std::vector<TCP> clientData;
+    std::vector<TCP> serverData;
 
 protected:
 

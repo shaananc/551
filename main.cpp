@@ -28,6 +28,7 @@
 using namespace std;
 //using namespace boost;
 
+int file_num;
 
 int num_total_packets;
 int num_tpackets;

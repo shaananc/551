@@ -24,6 +24,7 @@ extern "C" {
 #define SIZE_ETHERNET 14
 #define MAC_STRING_SIZE 19
 
+extern int file_num;
 
     /* Ethernet addresses are 6 bytes */
 #define ETHER_ADDR_LEN	6

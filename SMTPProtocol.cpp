@@ -6,17 +6,15 @@
  */
 
 #include "SMTPProtocol.h"
-//#include <boost/algorithm/string.hpp>
+#include "IpKey.h"
+#include "pktstruct.h"
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <map>
 #include <sstream>
 
-
-// Takes payload sent TO server
-// Dumps the actual message to 'message' and then calls parseEmail
-//using namespace boost;
 
 extern map<int, NetApp> applicationCallbacks;
 
@@ -33,6 +31,19 @@ void SMTPProtocol::clientPayload(std::vector<TCP> &clientData, std::vector<TCP> 
     
     string cur_email;
     string cur_init;
+    
+    struct in_addr clientip;
+    struct in_addr serverip;
+    
+    std::vector<TCP>::iterator c_ip = clientData.begin();
+    if(c_ip != clientData.end()){
+	clientip = c_ip->ipaddr;
+    }
+    std::vector<TCP>::iterator s_ip = serverData.begin();
+    if(s_ip != serverData.end()){
+	serverip = s_ip->ipaddr;
+    }
+
     
    	//Parse email from client data
     std::vector<TCP>::iterator itr;
@@ -94,119 +105,49 @@ void SMTPProtocol::clientPayload(std::vector<TCP> &clientData, std::vector<TCP> 
     }
 	
     
-    output_emails(init_strings, emails, emailResponses);
+    output_emails(clientip, serverip, init_strings, emails, emailResponses);
 
 }
 
-void SMTPProtocol::output_emails(std::vector< std::string > init_strings,
+
+
+void SMTPProtocol::output_emails(struct in_addr clientip, struct in_addr serverip, std::vector< std::string > init_strings,
             std::vector< std::string > emails,
             std::vector<int> emailResponses){
+            	
+            	
+    char source_addr[INET_ADDRSTRLEN];
+    char dest_addr[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &clientip, source_addr, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &serverip, dest_addr, INET_ADDRSTRLEN);
     
     //Check if email was accepted or rejected, and Print to files!
     std::vector<int>::iterator response = emailResponses.begin();
     for(std::vector<std::string>::iterator itr = emails.begin(); itr != emails.end(); itr++){
-    	cout << *itr <<"\n"; //Email message
+    	file_num++;
+		
+	std::ostringstream filename;
+	filename.str("");
+	filename << file_num << ".mail";
+	std::ofstream recv_file;
+	recv_file.open(filename.str().c_str());
+		
+	recv_file << source_addr<<"\n";
+	recv_file << dest_addr<<"\n";
+    	recv_file << *itr <<"\n"; //Email message
+    	
 	if(response != emailResponses.end()){
 	   if(*response == 1){
-		cout << "ACCEPT\n";
+		recv_file << "ACCEPT\n";
 	    } else {
-		cout << "REJECT\n";
+		recv_file << "REJECT\n";
 	    }
 		response++;
 	}
+	
+	recv_file.close();
     }
     
 }
 
-
-
-// Reads email header
-/*
-void SMTPProtocol::parseEmail(string email) {
-    //ing namespace boost;
-    if (email.size() != 0) {
-        std::vector<string>fields;
-        std::vector<string>sendorVector;
-        std::vector<string>fromVector;
-        std::vector<string>receiveVector;
-        std::vector<string>subjectVector;
-        std::vector<string>dateVector;
-        std::vector<string>mimeversionVector;
-        std::vector<string>contenttypeVector;
-        std::vector<string>xmailerVector;
-        std::vector<string>threadIndexVector;
-        std::vector<string>xmimeOleVector;
-        std::vector<string>emailbodyVector;
-        //string str = string(const char*)(payload);
-
-
-
-        //Split code
-
-
-
-
-        boost::split(fields, email, boost::is_any_of("\n"));
-
-        // for (size_t n = 0; n < fields.size(); n++)
-        //{
-        //boost::split(
-        std::string goAheadField("354 go ahead");
-        if (fields[0].find(goAheadField) != std::string::npos) {
-            // cout<<fields[0]<<endl;
-            split(sendorVector, fields[1], is_any_of(":"));
-
-            cout << "We are replying to " << sendorVector[1] << endl;
-
-            split(fromVector, fields[2], is_any_of(":"));
-
-            cout << "The mail is from " << fromVector[1] << endl;
-
-            split(receiveVector, fields[3], is_any_of(":"));
-
-            cout << "The mail is directed towards" << receiveVector[1] << endl;
-
-            split(subjectVector, fields[4], is_any_of(":"));
-
-            cout << "The subject is" << subjectVector[1] << endl;
-
-            split(dateVector, fields[5], is_any_of(":"));
-
-            cout << "The date of email is" << dateVector[1] << endl;
-
-            split(mimeversionVector, fields[6], is_any_of(":"));
-
-            cout << "The Mime Version of email is" << mimeversionVector[1] << endl;
-
-            split(contenttypeVector, fields[7], is_any_of(":"));
-
-            cout << "The Content Type of email is" << contenttypeVector[1] << endl;
-
-            split(xmailerVector, fields[9], is_any_of(":"));
-
-            cout << "The X-Mailer Type of email is" << xmailerVector[1] << endl;
-
-            split(threadIndexVector, fields[10], is_any_of(":"));
-
-            cout << "The Thread Index of email is" << threadIndexVector[1] << endl;
-
-            split(xmimeOleVector, fields[11], is_any_of(":"));
-
-            cout << "The xmimeOle Type of email is" << xmimeOleVector[1] << endl;
-
-            //cout << fields[ n ] << endl;
-            //cout << endl;
-        } else {
-            cout << "There's some problem" << endl;
-        }
-        split(emailbodyVector, email, is_any_of("This is a multi-part message in MIME format."));
-        cout << "the body content is " << emailbodyVector[1] << endl;
-        //}
-    } else {
-        cout << "There no payload attached to it";
-    }
-}
-*/
-
-// Email headers will be the start of the DATA segment if it starts with "Reply-To" and ends after the first BLANK newline
 

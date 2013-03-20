@@ -99,7 +99,16 @@ void TCPConnection::tcpFlow() {
 		uint32_t i = next - it->seq;
 		
 		it->pload = it->pload.substr(0, i);
-		clientData.push_back(*it);	
+		clientData.push_back(*it);
+		
+		if (strcmp(FLAG, "-t") == 0) {
+		 std::ostringstream filename;
+		 filename << id_num << ".initiator";
+		 std::ofstream init_file;
+		 init_file.open(filename.str().c_str(), ios::app);
+		 init_file << it->pload;
+		 init_file.close();
+		}
 	}
 
     /* Reconstruction of TCP flow from the server side*/
@@ -123,6 +132,17 @@ void TCPConnection::tcpFlow() {
 
 		it->pload = it->pload.substr(0, i);
 		serverData.push_back(*it);
+		
+		if (strcmp(FLAG, "-t") == 0) {
+			
+		  std::ostringstream filename;
+		  filename << id_num << ".receiver";
+		  std::ofstream recv_file;
+		  recv_file.open(filename.str().c_str(), ios::app);
+		  recv_file << it->pload;
+		  recv_file.close();
+		}
+
 	}
 
 
@@ -212,25 +232,6 @@ bool TCPConnection::processPacket(Packet *packet) {
                 if (iter->seq < tcp->ack) {
                     if (iter->ack_complete != 1) {
                         iter->ack_complete = 1;
-
-                        std::ostringstream filename;
-                        filename.str("");
-                        filename << id_num << ".receiver";
-                        std::ofstream recv_file;
-                        recv_file.open(filename.str().c_str(), ios::app);
-                        u_char *p = tcp->payload;
-                        int i = 0;
-                        while (*p && i < tcp->payload_size) {
-                            recv_file << *p;
-                            p++;
-                            i++;
-                        }
-
-                        //serverData.push(tcp->payload);
-
-                        recv_file.close();
-                        //iter = recv_buf.erase(iter);
-
                         bytes_sent += tcp->payload_size;
                         packets_sent++;
 
@@ -278,24 +279,6 @@ bool TCPConnection::processPacket(Packet *packet) {
                 if (it->seq < tcp->ack) {
                     if (it->ack_complete != 1) {
                         it->ack_complete = 1;
-
-                        std::ostringstream filename;
-                        filename << id_num << ".initiator";
-                        std::ofstream init_file;
-                        init_file.open(filename.str().c_str(), ios::app);
-
-                        u_char *p = tcp->payload;
-                        int i = 0;
-                        while (*p && i < tcp->payload_size) {
-                            init_file << *p;
-                            p++;
-                            i++;
-                        }
-                        init_file.close();
-                        //it = init_buf.erase(it);
-
-                        //clientData.push(tcp->payload);
-
                         packets_recv++;
                         bytes_recv += tcp->payload_size;
 
@@ -369,8 +352,9 @@ IpKey TCPConnection::getKey() {
 void TCPConnection::forceClose() {
     force_close = true;
     this->tcpFlow();
+    if (strcmp(FLAG, "-t") == 0) {
+	this->writeMeta();
+    }
     cout << "force close" << endl;
-    //this->tcpFlow();
-    //this->writeMeta();
 
 }

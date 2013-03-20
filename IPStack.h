@@ -60,6 +60,7 @@ public:
     uint32_t ack;
     int ack_complete;
     std::string pload;
+    struct in_addr ipaddr;
     bool operator<(const TCP &rhs) const { return seq < rhs.seq; }
 
 };

@@ -10,7 +10,6 @@
 
 #include <string>
 #include "IPStack.h"
-//#include <boost/algorithm/string.hpp>
 #include <iostream>
 //#include <string>
 #include <vector>
@@ -48,12 +47,10 @@ private:
 
 public:
 
-    //    void print(std::vector<string>&v); 
-    //void parseEmail(string email);
+  
     virtual void clientPayload(std::vector<TCP> &clientData, std::vector<TCP> &serverData);
-    //virtual void serverPayload(std::vector<std::string> &serverData);
-    //virtual void serverPayload(Payload payload);
-    void output_emails(std::vector< std::string > init_strings,
+    
+    void output_emails(struct in_addr clientip, struct in_addr serverip, std::vector< std::string > init_strings,
             std::vector< std::string > emails,
             std::vector<int> emailResponses);
 

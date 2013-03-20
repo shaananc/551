@@ -188,6 +188,7 @@ bool TCPConnection::processPacket(Packet *packet) {
                 TCP t;
                 t.seq = tcp->seq;
                 t.ack = tcp->ack;
+                t.ipaddr = initiator;
                 t.payload_size = tcp->payload_size;
                 t.ack_complete = 0;
                 std::stringstream s;
@@ -254,6 +255,7 @@ bool TCPConnection::processPacket(Packet *packet) {
                 TCP t;
                 t.seq = tcp->seq;
                 t.payload_size = tcp->payload_size;
+                t.ipaddr = receiver;
                 t.ack = tcp->ack;
                 t.ack_complete = 0;
                 std::stringstream s;
